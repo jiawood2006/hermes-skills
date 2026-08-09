@@ -2,17 +2,20 @@
 
 3 个可安装的 Hermes/Agent Skills（兼容 agentskills.io 开放标准）：
 
-| 技能 | 功能 | 目录 |
+| 技能 | 功能 | 安装标识符 |
 |:---|:---|:---|
-| video-to-text | 视频转文字（抖音链接/本地视频） | `video-to-text/` |
-| de-ai-writer | AI 文案去味 | `de-ai-writer/` |
-| doc-ocr | 文档文字识别（PDF/扫描件） | `doc-ocr/` |
+| video-to-text | 视频转文字（抖音链接/本地视频） | `jiawood2006/hermes-skills/skills/video-to-text` |
+| de-ai-writer | AI 文案去味 | `jiawood2006/hermes-skills/skills/de-ai-writer` |
+| doc-ocr | 文档文字识别（PDF/扫描件） | `jiawood2006/hermes-skills/skills/doc-ocr` |
 
 ## 安装
 
 ```bash
-# 复制技能目录到 ~/.hermes/skills/ 下即可
-cp -r video-to-text de-ai-writer doc-ocr ~/.hermes/skills/
+hermes skills install jiawood2006/hermes-skills/skills/video-to-text
+hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer
+hermes skills install jiawood2006/hermes-skills/skills/doc-ocr
+# 或复制目录：
+# cp -r skills/video-to-text skills/de-ai-writer skills/doc-ocr ~/.hermes/skills/
 ```
 
 ## 支持作者
