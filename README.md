@@ -20,6 +20,12 @@ hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio
 # cp -r skills/video-to-text skills/de-ai-writer skills/doc-ocr skills/ecommerce-material-studio ~/.hermes/skills/
 ```
 
+## 效果示例 / Demo
+
+![电商素材工坊效果示例](docs/demo-ecommerce.jpg)
+
+*电商素材工坊输出示例：三头浮动剃须刀主图（渐变背景+卖点文字）*
+
 ## 支持作者
 
 好用请 Star ⭐ 或扫码支持（详见各技能内 SKILL.md）。
