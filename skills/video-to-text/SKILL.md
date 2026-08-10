@@ -1,6 +1,6 @@
 ---
 name: video-to-text
-description: 视频转文字。用户发抖音/快手等视频分享链接，或本地视频文件，需要标题、点赞数、作者等元数据或语音转写全文时使用。抖音链接用 SSR 解析无需 Cookie。
+description: "视频转文字。用户发抖音/快手等视频分享链接，或本地视频文件，需要标题、点赞数、作者等元数据或语音转写全文时使用。抖音链接用 SSR 解析无需 Cookie。Video to text: extract metadata (title, likes, author) and transcribe speech from Douyin/Kuaishou share links or local video files."
 version: 1.0.0
 author: 涛哥
 license: MIT
