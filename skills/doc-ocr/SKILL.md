@@ -1,6 +1,6 @@
 ---
 name: doc-ocr
-description: 文档文字识别。用户提供 PDF/扫描件/图片（合同、发票、书页、截图），需要提取文字、转成可编辑文本时使用。扫描件自动 OCR（macOS Vision，中英文）。
+description: "文档文字识别。用户提供 PDF/扫描件/图片（合同、发票、书页、截图），需要提取文字、转成可编辑文本时使用。扫描件自动 OCR（macOS Vision，中英文）。Document OCR: extract editable text from PDFs, scans, and images (contracts, invoices, book pages, screenshots) via macOS Vision."
 version: 1.0.0
 author: 涛哥
 license: MIT
