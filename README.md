@@ -7,6 +7,7 @@
 | video-to-text | 视频转文字（抖音链接/本地视频） | `jiawood2006/hermes-skills/skills/video-to-text` |
 | de-ai-writer | AI 文案去味 | `jiawood2006/hermes-skills/skills/de-ai-writer` |
 | doc-ocr | 文档文字识别（PDF/扫描件） | `jiawood2006/hermes-skills/skills/doc-ocr` |
+| ecommerce-material-studio | 电商素材工坊（主图/详情图/场景图，中英双语） | `jiawood2006/hermes-skills/skills/ecommerce-material-studio` | 文档文字识别（PDF/扫描件） | `jiawood2006/hermes-skills/skills/doc-ocr` |
 
 ## 安装
 
