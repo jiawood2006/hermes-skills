@@ -89,7 +89,6 @@ python3 scripts/batch_processor.py --input products.json --output-dir ./batch --
 
 **本技能完全免费使用。** 觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
 
-![支付宝收款码](assets/alipay_qr.jpg)
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
 > 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue：https://gitee.com/tao6677/useful-tools
