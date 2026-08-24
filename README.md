@@ -18,6 +18,7 @@
 | 🤖 AI 写的东西一股"机器味"？ | 一键去 AI 味，恢复真人表达 | **de-ai-writer** |
 | 📄 PDF/扫描件要抠文字？ | 本地 OCR，隐私安全 | **doc-ocr** |
 | 🛒 电商主图/详情图要批量做？ | 素材工坊：场景图+卖点合成一条龙 | **ecommerce-material-studio** |
+| 🏗️ 工程项目资料太多理不清？ | 微信对话式 AI 工程顾问（记忆图谱+多群） | **ai-project-advisor** |
 
 ---
 
@@ -43,6 +44,11 @@
 - **English**: Batch e-commerce images (main/detail/scene), auto product-scale + brand overlay
 - **适用**：淘宝/拼多多/快手商家素材生产
 
+### 5️⃣ ai-project-advisor · AI 工程顾问
+- **中文**：微信/企微对话式工程项目顾问——记录项目事实、盯关键节点、提醒风险
+- **English**: WeChat/WeCom conversational engineering project advisor — records facts, tracks milestones, alerts risks
+- **适用**：工程公司老板/项目经理的项目管理助手
+
 ---
 
 ## 🚀 安装 / Installation
@@ -53,9 +59,10 @@ hermes skills install jiawood2006/hermes-skills/skills/video-to-text
 hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer
 hermes skills install jiawood2006/hermes-skills/skills/doc-ocr
 hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio
+hermes skills install jiawood2006/hermes-skills/skills/ai-project-advisor
 
 # 方式二：复制目录（任意 Agent 都可用）
-cp -r skills/video-to-text skills/de-ai-writer skills/doc-ocr skills/ecommerce-material-studio ~/.hermes/skills/
+cp -r skills/* ~/.hermes/skills/
 ```
 
 > 💡 兼容 agentskills.io 开放标准——其他支持 Skills 的 Agent 也能用。
@@ -64,10 +71,23 @@ cp -r skills/video-to-text skills/de-ai-writer skills/doc-ocr skills/ecommerce-m
 
 ## 🖼️ 效果示例 / Demo
 
-![电商素材工坊效果示例](docs/demo-ecommerce.jpg)
+### 🛒 电商素材工坊：白底图 → 使用场景图
 
-*电商素材工坊输出示例：三头浮动剃须刀主图（渐变背景+卖点文字）*
-*E-commerce Material Studio output: floating-head shaver main image (gradient + selling points)*
+| 输入：产品白底图 / Input | 输出：场景合成图 / Output |
+|:---:|:---:|
+| ![before](docs/demo/demo_product_before.jpg) | ![after](docs/demo/demo_scene_after.jpg) |
+
+*一键把白底产品图放进真实使用场景（演示图为 AI 生成的无品牌通用产品）*
+*One-click scene composition from a plain product photo (demo shows an AI-generated unbranded product)*
+
+### ✍️ de-ai-writer：去 AI 味前后对比
+
+| 之前（AI 味）/ Before | 之后（真人感）/ After |
+|:---|:---|
+| 首先，这款产品具有非常出色的性能表现。其次，它的外观设计也非常时尚。总而言之，它是一款值得推荐的产品。 | 这机器上手就俩字：顺手。性能不拖后腿，长得也拿得出手，用过的都懂。 |
+
+*去掉"首先/其次/总而言之"，恢复真人说话的样子*
+*Removes "firstly / moreover / in conclusion" — sounds like a human again*
 
 ---
 
