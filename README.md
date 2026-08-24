@@ -91,6 +91,20 @@ cp -r skills/* ~/.hermes/skills/
 
 ---
 
+## 💬 欢迎反馈 / Feedback
+
+**用了有意见、有问题、有想法？欢迎提出来，每条都会认真看！**
+**Used it and have feedback, questions, or ideas? Please share — every issue is read!**
+
+- 🐛 发现 Bug / Found a bug → [提 Issue / Open an Issue](https://github.com/jiawood2006/hermes-skills/issues/new?template=bug_report.md)
+- 💡 想要新技能 / Want a new skill → [求新技能 / Request a skill](https://github.com/jiawood2006/hermes-skills/issues/new?template=feature_request.md)
+- 💬 随便聊聊 / Just chat → [Discussions](https://github.com/jiawood2006/hermes-skills/discussions)
+
+*你的意见能让这些技能更好用——尤其是"哪里不好用"的吐槽最宝贵。*
+*Your feedback makes these skills better — especially "what doesn't work well".*
+
+---
+
 ## ⭐ 支持作者 / Support
 
 **好用请点 Star ⭐——你的支持是开源的动力！**
