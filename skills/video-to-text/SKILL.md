@@ -1,6 +1,6 @@
 ---
 name: video-to-text
-description: "视频转文字。用户发抖音/快手等视频分享链接，或本地视频文件，需要标题、点赞数、作者等元数据或语音转写全文时使用。抖音链接用 SSR 解析无需 Cookie。Video to text: extract metadata (title, likes, author) and transcribe speech from Douyin/Kuaishou share links or local video files."
+description: "视频转文字。用户发抖音分享链接（获取标题/作者/点赞等元数据），或本地视频文件（语音转写全文）时使用。抖音链接用 SSR 解析无需 Cookie。Video to text: extract metadata from Douyin share links, or transcribe speech from local video files."
 version: 1.0.0
 author: 涛哥
 license: MIT
@@ -13,31 +13,34 @@ metadata:
 
 # Video-to-Text 视频转文字
 
-把视频变成可复制、可搜索的文字。支持抖音分享链接（无需登录）和本地视频文件。
+把视频变成可复制、可搜索的文字。支持抖音分享链接（元数据，无需登录）和本地视频文件（语音转写）。
 
 ## 触发条件
 
 用户发送以下内容时使用本技能：
-- 抖音/快手分享链接，要求"转文字""提取文案""拆解视频"
+- 抖音分享链接，要求"转文字""提取文案""拆解视频"
 - 本地视频文件（.mp4/.mov），要求"语音转文字""字幕"
 
 ## 使用步骤
 
-### 1. 抖音分享链接 → 元数据 + 转写
+### 1. 抖音分享链接 → 元数据
 
 ```bash
-python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py "https://v.douyin.com/xxxx/" --transcribe
+python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py "https://v.douyin.com/xxxx/"
 ```
 
-- 不加 `--transcribe` 只输出元数据（标题/作者/点赞/标签）
-- 脚本自动下载视频、提取音频、faster-whisper 转写
-- 转写文本保存为 `<输入名>_transcript.txt` 并打印时间戳分段
+- 输出元数据（标题/作者/点赞/时长/标签）+ play_url
+- 技术：curl 短链取真实视频 ID → Playwright 打开视频页监听 API（2026-08-26 更新，SSR 已不注入视频详情）
+- **注意**：分享链接当前只提取元数据——语音转写请让用户保存视频后走本地文件（步骤 2），或加 `--transcribe` 强制
 
 ### 2. 本地视频文件 → 语音转写
 
 ```bash
 python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py 本地视频.mp4
 ```
+
+- 自动提取音频、faster-whisper 转写（中文）
+- 转写文本保存为 `<输入名>_transcript.txt` 并打印时间戳分段
 
 ## 依赖（首次使用时安装）
 
@@ -60,6 +63,7 @@ pip3 install faster-whisper        # 转写需要（首次会下载 tiny 模型 
 
 觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
 
+![支付宝收款码](assets/alipay_qr.jpg)
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
 > 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue。
