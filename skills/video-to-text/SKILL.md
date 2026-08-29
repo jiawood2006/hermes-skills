@@ -8,12 +8,14 @@ metadata:
   hermes:
     tags: [video, transcription, douyin, whisper, speech-to-text]
     category: utilities
-    homepage: https://gitee.com/tao6677/useful-tools
+    homepage: https://github.com/jiawood2006/hermes-skills
 ---
 
 # Video-to-Text 视频转文字
 
 把视频变成可复制、可搜索的文字。支持抖音分享链接（元数据，无需登录）和本地视频文件（语音转写）。
+
+> 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/video-to-text` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/video-to-text/`。以下命令基于该路径。
 
 ## 触发条件
 
@@ -66,4 +68,4 @@ pip3 install faster-whisper        # 转写需要（首次会下载 tiny 模型 
 ![支付宝收款码](assets/alipay_qr.jpg)
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue。
+> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues

@@ -8,12 +8,14 @@ metadata:
   hermes:
     tags: [writing, editing, humanize, de-ai, copywriting]
     category: utilities
-    homepage: https://gitee.com/tao6677/useful-tools
+    homepage: https://github.com/jiawood2006/hermes-skills
 ---
 
 # De-AI Writer AI 文案去味器
 
 把 AI 生成的文字改写成自然、有真人味的中文。专治空洞拔高、排比三连、官方黑话、模板化结尾。
+
+> 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/de-ai-writer/`。以下命令基于该路径。
 
 ## 触发条件
 
@@ -53,4 +55,4 @@ python3 ~/.hermes/skills/utilities/de-ai-writer/scripts/deai.py 稿子.txt --pro
 
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue。
+> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues

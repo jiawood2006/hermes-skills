@@ -8,12 +8,14 @@ metadata:
   hermes:
     tags: [ocr, pdf, document, text-extraction, scan]
     category: utilities
-    homepage: https://gitee.com/tao6677/useful-tools
+    homepage: https://github.com/jiawood2006/hermes-skills
 ---
 
 # Doc-OCR 文档文字识别
 
 PDF / 扫描件 / 图片 → 可编辑文字。有文字层的 PDF 直接提取，扫描件自动 OCR（macOS Vision 自带，中英文）。
+
+> 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/doc-ocr` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/doc-ocr/`。以下命令基于该路径。
 
 ## 触发条件
 
@@ -66,4 +68,4 @@ pip3 install pymupdf pyobjc-framework-Vision
 
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue。
+> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues

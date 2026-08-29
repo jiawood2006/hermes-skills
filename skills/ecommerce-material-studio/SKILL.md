@@ -15,6 +15,8 @@ metadata:
 
 **One-stop pipeline for e-commerce product images: category detection → style matching → scene compositing → text overlay → quality check → platform adaptation → batch delivery.**
 
+> 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/ecommerce-material-studio/`。以下命令在该目录内运行（脚本在 `scripts/` 子目录）。
+
 ## 何时使用 / When to use
 
 - 用户需要生成**电商主图/详情图**（如"帮我做一套剃须刀主图"）
@@ -91,4 +93,4 @@ python3 scripts/batch_processor.py --input products.json --output-dir ./batch --
 
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue：https://gitee.com/tao6677/useful-tools
+> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
