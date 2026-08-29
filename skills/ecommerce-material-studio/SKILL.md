@@ -13,9 +13,9 @@ metadata:
 
 生成电商产品素材（主图/详情图/场景图）的一站式工具链。输入产品图片 → 自动完成品类识别、风格匹配、场景合成、文字叠加、质检、多平台适配、批量交付。
 
-**One-stop pipeline for e-commerce product images: category detection → style matching → scene compositing → text overlay → quality check → platform adaptation → batch delivery.**
+**v2 新增：AI 场景融合合成器**（`scripts/ai_compositor.py`）——用 Qwen-Image-Edit 图生图把产品真实融入使用场景（AI 重绘光影/透视，非 PIL 贴图），支持卖点→场景自动匹配。
 
-> 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/ecommerce-material-studio/`。以下命令在该目录内运行（脚本在 `scripts/` 子目录）。
+**One-stop pipeline for e-commerce product images: category detection → style matching → scene compositing → text overlay → quality check → platform adaptation → batch delivery.**
 
 ## 何时使用 / When to use
 
@@ -32,29 +32,48 @@ metadata:
 pip install Pillow numpy scipy
 
 # 1. 品类识别：输入产品图 → 识别品类/风格
-python3 scripts/category_detector.py product.png
+python3 scripts/category_detector.py --image product.png
 
 # 2. 风格匹配：品类+价位+平台+品牌 → 推荐模板
 python3 scripts/style_matcher.py --category 个护电器 --sub-category 剃须刀 --price 169 --platform kuaishou
 
-# 3. 场景感知合成（核心）：场景图+产品图 → 按参照物尺度自动合成
-python3 scripts/scene_aware_compositor.py --scene scene.jpg --product product.png --scene-type lifestyle_bathroom
+# 3. 场景感知合成（核心）：库调用（SceneAwareCompositor 是 Python 库，非 CLI）
+python3 -c "
+from PIL import Image
+from scripts.scene_aware_compositor import SceneAwareCompositor
+c = SceneAwareCompositor()
+scene = Image.open('scene.jpg'); product = Image.open('product.png')
+result = c.composite(scene_image=scene, product_image=product, scene_type='lifestyle_bathroom', position=(0.5, 0.45))
+result.save('result.png')
+"
 
-# 4. 统一文字叠加（z-index 分层，自动避让）
-python3 scripts/text_engine.py --image result.png --text "Type-C快充" --layout bottom_band
+# 4. 统一文字叠加（处理 plan.json 里所有文字层）
+python3 scripts/text_engine.py --plan output/plan.json --brand langke --scene-tone dark
 
-# 5. 自动质检（5 项检查）
-python3 scripts/quality_check.py --dir ./output
+# 5. 自动质检（读取 plan.json + 检查成品图）
+python3 scripts/quality_check.py --plan output/plan.json
 
 # 6. 多平台尺寸适配
-python3 scripts/platform_adapter.py --dir ./output --platform kuaishou
+python3 scripts/platform_adapter.py --input-dir ./output --platforms kuaishou --output-dir ./platform_output
 
 # 7. 标准化交付打包（自动生成使用指南+清单+zip）
 python3 scripts/delivery_packager.py --project-dir ./output --product-name "示例产品"
 
 # 8. 批量处理（多产品，断点续传）
 python3 scripts/batch_processor.py --input products.json --output-dir ./batch --prepare
+
+# 9. AI 场景融合（v2，需 SILICON_FLOW_API_KEY）
+python3 scripts/ai_compositor.py product.png --selling-point "90天续航" -o output/ai_scene.png
+#    卖点→场景模板：口袋mini/90天续航/动力/防水/便携（自动匹配专属场景）
+#    或自定义场景：--scene "自定义场景描述"
+#    预览 prompt 不调用：--dry-run
 ```
+
+> ⚠️ AI 融合铁律（来自 siliconflow-image-api 实战）：
+> - **产品必须写死**：`--product-desc` 写清产品部件特征（如"深色磨砂圆柱机身，顶部三头浮动刀头"），否则 AI 改画
+> - **禁止只画场景不画产品**：prompt 已内置"产品必须是画面绝对主角"锁定句
+> - **卖点→场景绑定**：每个卖点有专属场景（含视觉证据），不写抽象纹理背景
+> - 生成后必须 vision/人眼校验：产品保真？场景贴卖点？不贴合重新生成
 
 ## 模块清单 / Modules
 
@@ -91,6 +110,7 @@ python3 scripts/batch_processor.py --input products.json --output-dir ./batch --
 
 **本技能完全免费使用。** 觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
 
+![支付宝收款码](assets/alipay_qr.jpg)
 
 > 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
+> 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue：https://gitee.com/tao6677/useful-tools
