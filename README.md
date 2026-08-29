@@ -66,6 +66,7 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 | 📄 PDF/扫描件要抠文字？ | 本地 OCR + **发票/合同字段抽取** | **doc-ocr** | macOS（Vision 引擎）|
 | 🛒 电商主图/详情图要批量做？ | 素材工坊 + **AI 场景融合**（图生图） | **ecommerce-material-studio** | 全平台 · 生图需硅基流动 key |
 | 🧠 Agent 记忆太乱、token 浪费？ | 记忆健康检查 + 压缩建议 | **memory-manager** | 全平台 · 零依赖 |
+| 📖 写小说/连载怕前后矛盾？ | 长文记忆图谱：实体网+时间线+**伏笔追踪** | **memory-graph** | 全平台 · 提取需 LLM key |
 | 🏗️ 工程项目资料太多理不清？ | 微信对话式 AI 工程顾问（记忆图谱+多群） | **ai-project-advisor** | 需部署服务端 |
 
 ---
@@ -102,7 +103,13 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 - **适用**：任何 Agent 的记忆维护，防止上下文被挤占
 - **依赖**：**零依赖**（纯 Python 标准库）
 
-### 6️⃣ ai-project-advisor · AI 工程顾问
+### 6️⃣ memory-graph · 长文记忆图谱
+- **中文**：四维图谱（实体网+时间线+因果链+概念库）——小说/连载写作自动提取记忆，**伏笔追踪+一致性检查**
+- **English**: Four-graph memory (entity/timeline/causality/concept) for long-form writing — auto-extract, plot-thread tracking & consistency check
+- **适用**：小说、连载、剧本、系列教程、世界观设定管理
+- **依赖**：提取需 LLM key（`--no-llm` 规则模式可用）
+
+### 7️⃣ ai-project-advisor · AI 工程顾问
 - **中文**：微信/企微对话式工程项目顾问——记录项目事实、盯关键节点、提醒风险
 - **English**: WeChat/WeCom conversational engineering project advisor — records facts, tracks milestones, alerts risks
 - **适用**：工程公司老板/项目经理的项目管理助手
@@ -119,6 +126,7 @@ hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer
 hermes skills install jiawood2006/hermes-skills/skills/doc-ocr
 hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio
 hermes skills install jiawood2006/hermes-skills/skills/memory-manager
+hermes skills install jiawood2006/hermes-skills/skills/memory-graph
 hermes skills install jiawood2006/hermes-skills/skills/ai-project-advisor
 
 # 方式二：复制目录（任意 Agent 都可用，路径与 SKILL.md 保持一致）
