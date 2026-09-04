@@ -101,8 +101,3 @@ export LLM_MODEL="deepseek-chat"
 - **只提取明确信息**：LLM 不会编造（prompt 已限制），但过度模糊的文本提取质量会下降
 - **小说专用进阶版**：长篇小说推荐用 novel-magma-memory（POV/伏笔账本/情感图更细），本技能是通用轻量版
 
-## 💛 免费使用 · 自愿支持
-
-**本技能完全免费使用。**
-
-> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
