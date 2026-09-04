@@ -1,14 +1,17 @@
-# 🧰 Hermes Skills · 实用技能包 / Practical Skill Pack
+# 🧰 Hermes Skills · 中文实用技能包 / Practical Chinese Agent Skills
 
-> **中文**：开箱即用的 Hermes/Agent 技能集——复制目录即可安装，全部免费开源。
-> **English**: Ready-to-use Hermes/Agent skills — copy the folder to install, 100% free & open source.
-
-> 🎯 **定位 / Positioning**：GitHub 技能市场 99% 是英文开发工具——这里是稀缺的**中文场景实用技能**：抖音视频转文字、中文文档 OCR、中文去 AI 味、电商素材工坊。**Practical Chinese-language agent skills** — the rare gems in a market full of English dev tools: Douyin video→text, Chinese OCR, Chinese de-AI writing, e-commerce images.
+> **你的 Agent 很聪明，但它搞不定中文世界的活儿。**
+> 抖音文案要手抄？扫描合同要肉眼敲？AI 写的稿子一股机器味？电商主图一张张 P？
+> 这里就是给 Agent 装的 **中文生存技能包**——7 个开箱即用的实用技能，免费开源，复制即用。
+>
+> *Your agent is smart — but useless on Chinese real-world tasks. Douyin video→text, Chinese OCR, de-AI writing, e-commerce images. This is its Chinese survival kit.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent%20Skills-blue)](https://hermes-agent.nousresearch.com)
 [![agentskills.io](https://img.shields.io/badge/agentskills.io-Compatible-8A2BE2)](https://agentskills.io)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/jiawood2006/hermes-skills/pulls)
+
+> 🎯 **定位 / Positioning**：GitHub 技能市场 99% 是英文开发工具——这里是稀缺的**中文场景实用技能**。**Practical Chinese-language agent skills** — the rare gems in a market full of English dev tools.
 
 **⭐ 觉得有用？点个 Star 支持一下 → [⭐ Star this repo](https://github.com/jiawood2006/hermes-skills/stargazers) — 你的支持是开源的动力！**
 **⭐ If you find this useful, please Star it — it keeps the project alive!**
@@ -34,6 +37,20 @@
 
 *去掉"首先/其次/总而言之"，恢复真人说话的样子*
 *Removes "firstly / moreover / in conclusion" — sounds like a human again*
+
+### 🎬 video-to-text：抖音链接 → 自动转写（一条命令）
+
+```
+$ vtt "https://v.douyin.com/xxxx/"
+🎬 视频元数据        title: 3个超实用的生活小技巧
+📼 已下载视频        author: 生活达人小李
+✅ 转写已保存: 3个超实用的生活小技巧_transcript.md（12 段 / 380 字）
+[00:00] 大家好，今天分享三个超实用的生活小技巧
+[00:07] 第一个，用牙膏清洁银饰…
+```
+
+*不用手动存视频：链接 → 自动下载 → 本地转写 → 结构化 Markdown，一条命令跑完*
+*One command: Douyin link → auto-download → local transcription (privacy-safe, no API key)*
 
 ---
 
@@ -90,11 +107,11 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 
 ## 📦 技能清单 / Skill List
 
-### 1️⃣ video-to-text · 视频内容情报
-- **中文**：抖音/B站链接元数据 + 本地视频语音转写 + **内容摘要/爆款结构拆解**
-- **English**: Douyin/Bilibili metadata, local video transcription, content summary & viral structure analysis
+### 1️⃣ video-to-text · 抖音视频一键转文字
+- **中文**：**抖音分享链接 → 自动下载 → 本地转写**（一条命令闭环）+ 结构化 Markdown + 内容摘要/爆款结构拆解
+- **English**: **Douyin link → auto-download → transcribe in ONE command** + structured Markdown + viral analysis
 - **适用**：短视频文案采集、内容情报、爆款拆解
-- **依赖**：macOS/Linux；转写需 `pip3 install faster-whisper`；分析需 LLM key
+- **依赖**：macOS/Linux；转写需 `pip3 install faster-whisper`（可选 SenseVoice 更准）；分析需 LLM key
 
 ### 2️⃣ de-ai-writer · 中文去 AI 味写作引擎
 - **中文**：去 AI 味 + **免key demo 演示** + 风格克隆 + 变体生成 + 语气调节 + 8 维度评分
@@ -136,13 +153,21 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 
 ## 🚀 安装 / Installation
 
+**支持任何 Agent / host**——SKILL.md 遵循 agentskills.io 开放标准（Claude Code / Codex / Cursor / Gemini CLI / OpenCode / Hermes / npx skills…）：
+
 ```bash
-# 方式一：一键安装脚本（最简单 —— 装全部 + 创建全局命令 deai-demo/vtt/dococr 等）
+# 方式一：一键安装脚本（装全部 + 全局命令 deai-demo/vtt/dococr/v2t 等）
 git clone https://github.com/jiawood2006/hermes-skills.git
 cd hermes-skills && ./install.sh
-# 装完直接: deai-demo / deai-demo -t "你的文本"
 
-# 方式二：hermes skills 命令（推荐给 Hermes 用户，自动按分类安装）
+# 方式二：skills CLI（支持 50+ Agent 生态: Claude Code/Codex/Cursor…）
+npx skills add jiawood2006/hermes-skills --global     # 装全部
+npx skills add jiawood2006/hermes-skills/skills/video-to-text -g   # 装单个
+
+# 方式三：Claude Code / 任意 Agent（手动复制到技能目录）
+mkdir -p ~/.claude/skills && cp -r skills/* ~/.claude/skills/
+
+# 方式四：Hermes 官方命令（自动按分类安装）
 hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer
 hermes skills install jiawood2006/hermes-skills/skills/video-to-text
 hermes skills install jiawood2006/hermes-skills/skills/doc-ocr
@@ -151,7 +176,7 @@ hermes skills install jiawood2006/hermes-skills/skills/memory-manager
 hermes skills install jiawood2006/hermes-skills/skills/memory-graph
 hermes skills install jiawood2006/hermes-skills/skills/ai-project-advisor
 
-# 方式三：复制目录（任意 Agent 都可用，路径与 SKILL.md 保持一致）
+# 方式五：复制目录（纯手动，路径与各技能 SKILL.md 保持一致）
 mkdir -p ~/.hermes/skills/utilities
 cp -r skills/* ~/.hermes/skills/utilities/
 ```
