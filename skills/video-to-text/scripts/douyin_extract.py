@@ -16,6 +16,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.request
 
 CHROME = os.path.expanduser(
@@ -105,6 +106,53 @@ asyncio.run(main())
     except Exception:
         pass
     return None
+
+
+def fetch_douyin(share_url, download=False, out_dir=None):
+    """抖音链接 → 元数据（+可选下载）。供 CLI 与其他模块复用。
+
+    返回 dict:
+      {ok: bool, error?: str, item_id?, meta?: {...}, video_path?: str|None}
+    """
+    item_id = get_item_id(share_url)
+    if not item_id:
+        return {"ok": False, "error": "无法获取视频 ID"}
+    detail = extract_with_playwright(item_id)
+    if not detail:
+        return {"ok": False, "error": "提取失败：抖音反爬/网络问题。备选：从抖音App转发→复制文案。"}
+    meta = {
+        "item_id": item_id,
+        "title": detail.get("desc", ""),
+        "author": (detail.get("author") or {}).get("nickname", ""),
+        "duration_s": round(((detail.get("video") or {}).get("duration", 0)) / 1000),
+        "digg": ((detail.get("statistics") or {}).get("digg_count", 0)),
+        "comment": ((detail.get("statistics") or {}).get("comment_count", 0)),
+        "share": ((detail.get("statistics") or {}).get("share_count", 0)),
+        "hashtags": [te.get("hashtag_name") for te in (detail.get("text_extra") or [])],
+    }
+    video_path = None
+    if download:
+        play = ((detail.get("video") or {}).get("play_addr") or {}).get("url_list") or []
+        if play:
+            video_path = download_video(play[0], out_dir=out_dir)
+    return {"ok": True, "item_id": item_id, "meta": meta, "detail": detail,
+            "video_path": video_path}
+
+
+def download_video(play_url, out_dir=None):
+    """下载无水印视频到 out_dir（默认 /tmp），返回本地路径"""
+    out_dir = out_dir or tempfile.gettempdir()
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36",
+                   "Referer": "https://www.douyin.com/"}
+        req = urllib.request.Request(play_url, headers=headers)
+        data = urllib.request.urlopen(req, timeout=90).read()
+        path = os.path.join(out_dir, "douyin_video.mp4")
+        with open(path, "wb") as f:
+            f.write(data)
+        return path if os.path.getsize(path) > 0 else None
+    except Exception:
+        return None
 
 
 def print_metadata(detail):
