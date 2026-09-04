@@ -82,11 +82,3 @@ pip3 install pymupdf pyobjc-framework-Vision
 - **隐私卖点**：文件在本机处理，不上传第三方（结构化抽取会调 LLM API，注意敏感文件）。
 - **字段缺失**：docstruct 对缺失字段填 null 不编造，OCR 质量差时字段会少。
 
-## 💛 免费使用 · 自愿支持
-
-**本技能完全免费使用。**
-
-觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
-
-> 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
