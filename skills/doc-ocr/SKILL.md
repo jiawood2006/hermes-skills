@@ -82,3 +82,12 @@ pip3 install pymupdf pyobjc-framework-Vision
 - **隐私卖点**：文件在本机处理，不上传第三方（结构化抽取会调 LLM API，注意敏感文件）。
 - **字段缺失**：docstruct 对缺失字段填 null 不编造，OCR 质量差时字段会少。
 
+## 快速验证 / Smoke Test
+
+```bash
+# 安装验证（无文档在手也能跑）
+python3 ~/.hermes/skills/utilities/doc-ocr/scripts/dococr.py --help
+# 有任意 PDF/图片时的真实验证
+python3 ~/.hermes/skills/utilities/doc-ocr/scripts/dococr.py 任意文档.pdf --md
+# 期望：输出 *_ocr.md，含可编辑文字
+```
