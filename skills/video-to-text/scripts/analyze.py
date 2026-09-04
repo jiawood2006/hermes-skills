@@ -15,8 +15,13 @@ Video-To-Text Analyzer — 视频内容情报分析
 """
 import sys, os, json
 
-sys.path.insert(0, os.path.expanduser("~/.hermes/skills/utilities/de-ai-writer/scripts"))
-from engine import call_llm, load_config
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # 自包含：优先同目录 engine.py
+try:
+    from engine import call_llm, load_config
+except ImportError:
+    # 兼容旧安装（de-ai-writer 提供 engine.py）
+    sys.path.insert(0, os.path.expanduser("~/.hermes/skills/utilities/de-ai-writer/scripts"))
+    from engine import call_llm, load_config
 
 SUMMARY_PROMPT = """你是短视频内容分析师。请对下面的视频转写文本生成内容情报摘要。
 
