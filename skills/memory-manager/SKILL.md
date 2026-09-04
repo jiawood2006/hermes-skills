@@ -61,8 +61,3 @@ python3 ~/.hermes/skills/utilities/memory-manager/scripts/memcheck.py --full   #
 - **凭证纪律**：token/密码/API key 一律不落记忆明文
 - **记忆 vs skill**：流程类知识存 skill（按需加载），事实类存记忆（每轮注入）——放错地方都浪费
 
-## 💛 免费使用 · 自愿支持
-
-**本技能完全免费使用。**
-
-> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
