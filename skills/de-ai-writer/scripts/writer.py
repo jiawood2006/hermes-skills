@@ -5,7 +5,9 @@ De-AI Writer — 写作引擎统一入口
 把 AI 文案/小说/营销文改写成自然、有真人味的文本，并提供风格克隆、变体、语气调节、质量评分。
 
 用法:
-  python3 writer.py deai 输入.txt -o 输出.txt          # 去 AI 味（核心）
+  python3 writer.py demo                                # 免key本地演示（内置示例，无需API Key）
+  python3 writer.py demo -t "文本" / 文件.txt           # 免key处理自己的文本
+  python3 writer.py deai 输入.txt -o 输出.txt          # 去 AI 味（核心，需 LLM key 深度改写）
   python3 writer.py stylize 输入.txt --sample 样本.txt  # 风格克隆：模仿样本风格改写
   python3 writer.py variants 输入.txt -n 3              # 生成 3 个变体（A/B 测试）
   python3 writer.py tone 输入.txt --tone casual         # 语气调节: casual/formal/marketing/humor/direct
@@ -16,6 +18,7 @@ De-AI Writer — 写作引擎统一入口
 
 配置:
   LLM_API_KEY / LLM_BASE_URL / LLM_MODEL（环境变量或 ~/.deai_writer.conf [llm] 段）
+  demo 子命令不需要任何配置 —— 本地规则引擎，零依赖。
 """
 import sys, os, json, argparse
 
@@ -136,9 +139,30 @@ def cmd_review(args):
         print(out)
 
 
+def cmd_demo(args):
+    """免 key 本地演示：writer.py demo [文件] | -t 文本"""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from demo import DEMO_TEXT, show_result
+    text = args.text
+    if not text and args.input and args.input != "-":
+        with open(args.input, encoding="utf-8") as f:
+            text = f.read()
+    if not text:
+        text = DEMO_TEXT
+        print("（未传文本 → 用内置示例演示；处理自己的文本：python3 writer.py demo 你的文件.txt）\n")
+    show_result(text, no_color=args.no_color)
+
+
 def main():
     p = argparse.ArgumentParser(description="De-AI Writer 写作引擎")
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    # demo（免 key）
+    p_demo = sub.add_parser("demo", help="免key本地演示（无需API Key）")
+    p_demo.add_argument("input", nargs="?", default=None)
+    p_demo.add_argument("-t", "--text", help="直接传文本")
+    p_demo.add_argument("--no-color", action="store_true", help="关闭彩色输出")
+    p_demo.set_defaults(func=cmd_demo)
 
     # deai
     p_deai = sub.add_parser("deai", help="去 AI 味")
