@@ -1,6 +1,6 @@
 ---
 name: de-ai-writer
-description: "写作引擎（Writing Engine）。用户提供文本，需要去AI味、风格克隆、多版本变体、语气调节、质量评分时使用。AI文案去味是核心，但不止于去味——内置风格模仿/变体生成/8维度评分。De-AI Writer: remove AI-smell, clone writing style, generate variants, adjust tone, score quality — a full writing engine for Chinese copy.\"
+description: '写作引擎（Writing Engine）。用户提供文本，需要去AI味、风格克隆、多版本变体、语气调节、质量评分时使用。内置免key demo 模式（无需 API Key 即可看效果）。De-AI Writer: remove AI-smell, clone style, variants, tone, quality score — full Chinese writing engine.'
 version: 2.0.0
 author: 涛哥
 license: MIT
@@ -28,7 +28,23 @@ metadata:
 
 ## 使用步骤
 
-### 1. 去 AI 味（核心，零依赖模式也支持）
+### 0. 免 key 演示（第一次用，推荐先跑这个）
+
+没配 API Key 也能**立刻看到去 AI 味效果**——内置本地规则引擎（纯规则、零依赖、不联网）：
+
+```bash
+# 跑内置示例（30 秒看效果）
+python3 ~/.hermes/skills/utilities/de-ai-writer/scripts/writer.py demo
+python3 ~/.hermes/skills/utilities/de-ai-writer/scripts/demo.py            # 同上
+
+# 处理自己的文本
+python3 ~/.hermes/skills/utilities/de-ai-writer/scripts/writer.py demo -t "首先，这款产品不仅性能卓越，更是彰显了..."
+python3 ~/.hermes/skills/utilities/de-ai-writer/scripts/deai.py demo -t "文本"   # 简版入口
+```
+
+输出 before/after 对照 + 清除统计（"共清除 N 处 AI 味表达"）。这是**轻度去味**（只删口水词/机械连接/空话模板，语义零损伤）；深度改写见下一步。
+
+### 1. 去 AI 味（核心，LLM 深度改写）
 
 ```bash
 # 有 API Key（推荐，效果好）
@@ -96,9 +112,10 @@ export LLM_MODEL="deepseek-chat"
 
 ```
 scripts/
-├── writer.py    # 统一入口（deai/stylize/variants/tone/review 子命令）
+├── writer.py    # 统一入口（demo/deai/stylize/variants/tone/review 子命令）
+├── demo.py      # 免key本地规则引擎（demo 模式，零依赖）
 ├── engine.py    # LLM 调用 + 配置加载
-└── deai.py      # 旧版单文件（保留兼容）
+└── deai.py      # 简版入口（demo 子命令 + 去味，保留兼容）
 ```
 
 ## 已知陷阱
