@@ -106,3 +106,11 @@ python3 scripts/ai_compositor.py product.png --selling-point "90天续航" -o ou
 - **合成模式**：`scene_aware_compositor.py` 支持场景感知模式（自动算尺度）和兼容模式（固定 scale）
 - 参考数据中的"朗科/LangKe"为**示例品牌**，可直接替换为自己的品牌配置
 
+## 快速验证 / Smoke Test
+
+```bash
+# 安装验证：分类器需要一张产品图
+python3 ~/.hermes/skills/utilities/ecommerce-material-studio/scripts/category_detector.py --help
+# 风格匹配（无需图片，直接出模板推荐）
+python3 ~/.hermes/skills/utilities/ecommerce-material-studio/scripts/style_matcher.py --category 个护电器 --sub-category 剃须刀 --price 169 --platform kuaishou
+```
