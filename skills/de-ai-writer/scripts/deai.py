@@ -5,7 +5,9 @@ De-AI Writer — AI 文案去味器（通用版 CLI）
 把 AI 生成的文本改写成自然、有真人味的中文。
 
 用法:
-  python3 deai.py 输入文件.txt -o 输出文件.txt     # 处理文件
+  python3 deai.py demo                                # 免key本地演示（内置示例，30秒看效果）
+  python3 deai.py demo -t "要改写的文本"               # 免key处理自己的文本
+  python3 deai.py 输入文件.txt -o 输出文件.txt     # 处理文件（需 LLM key 深度改写）
   cat 文本.txt | python3 deai.py -o 输出.txt       # 管道输入
   python3 deai.py -t "要改写的文本"                 # 直接传文本
   python3 deai.py 输入.txt --prompt-only           # 只输出 prompt（无API key时用）
@@ -84,6 +86,27 @@ def call_llm(prompt: str, api_key: str = "", base_url: str = "", model: str = ""
     return data["choices"][0]["message"]["content"].strip()
 
 def main():
+    # ── demo 快捷模式：deai.py demo [文件] | -t "文本"（免key本地演示）──
+    if len(sys.argv) > 1 and sys.argv[1] == "demo":
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from demo import DEMO_TEXT, show_result
+        ap_d = argparse.ArgumentParser(description="deai.py demo — 免key本地去AI味演示")
+        ap_d.add_argument("input", nargs="?", help="输入文件（缺省跑内置示例）")
+        ap_d.add_argument("-t", "--text", help="直接传入要改写的文本")
+        ap_d.add_argument("--no-color", action="store_true", help="关闭彩色输出")
+        d = ap_d.parse_args(sys.argv[2:])
+
+        text = d.text
+        if not text and d.input:
+            with open(d.input, encoding="utf-8") as f:
+                text = f.read()
+        if not text:
+            text = DEMO_TEXT
+            print("（未传文本 → 用内置示例演示；处理自己的文本：python3 deai.py demo 你的文件.txt）\n")
+        show_result(text, no_color=d.no_color)
+        return
+
+    # ── 正常去味模式（LLM 深度改写）──
     ap = argparse.ArgumentParser(description="De-AI Writer — AI 文案去味器")
     ap.add_argument("input", nargs="?", help="输入文件（缺省读 stdin）")
     ap.add_argument("-t", "--text", help="直接传入要改写的文本")
@@ -106,8 +129,13 @@ def main():
     if args.prompt_only:
         result = build_prompt(text)
     else:
-        print("⏳ 正在改写...", file=sys.stderr)
-        result = call_llm(build_prompt(text), api_key=args.api_key)
+        try:
+            print("⏳ 正在改写...", file=sys.stderr)
+            result = call_llm(build_prompt(text), api_key=args.api_key)
+        except SystemExit:
+            print("\n💡 没配 API Key？先跑 python3 deai.py demo 免key看效果（本地规则版）；\n"
+                  "   或写 ~/.deai_writer.conf 配 key 后用 LLM 深度改写。", file=sys.stderr)
+            raise
 
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
