@@ -116,6 +116,41 @@ def speak(text: str, persona: str, out: str = "") -> str:
     asyncio.run(_run())
     return out
 
+# ═══════════════ 四、silk 编码：语音回发微信（双向闭环） ═══════════════
+def to_silk(audio: str, out: str = "") -> str:
+    """任意音频(mp3/wav/m4a) → 微信 silk 语音（#!SILK_V3 头），可回发微信语音气泡。
+    解码优先 ffmpeg，无则用 macOS 原生 afconvert；均转 24kHz 单声道 pcm。"""
+    import pilk, subprocess, tempfile, shutil, wave
+    out = out or str(pathlib.Path(audio).with_suffix(".silk"))
+    pcm = tempfile.NamedTemporaryFile(suffix=".pcm", delete=False); pcm.close()
+    tmpwav = None
+    try:
+        ffmpeg = shutil.which("ffmpeg") or "/usr/local/bin/ffmpeg"
+        if os.path.exists(ffmpeg):
+            r = subprocess.run([ffmpeg, "-y", "-v", "error", "-i", audio,
+                                "-f", "s16le", "-ac", "1", "-ar", "24000", pcm.name],
+                               capture_output=True)
+            if r.returncode != 0:
+                return f"ffmpeg error: {r.stderr.decode()[:200]}"
+        else:
+            tmpwav = tempfile.NamedTemporaryFile(suffix=".wav", delete=False); tmpwav.close()
+            r = subprocess.run(["/usr/bin/afconvert", "-f", "WAVE", "-d", "LEI16@24000",
+                                "-c", "1", audio, tmpwav.name], capture_output=True)
+            if r.returncode != 0:
+                return f"afconvert error: {r.stderr.decode()[:200]}"
+            with wave.open(tmpwav.name, "rb") as w:
+                raw = w.readframes(w.getnframes())
+            with open(pcm.name, "wb") as f:
+                f.write(raw)
+        pilk.encode(pcm.name, out, pcm_rate=24000, tencent=True)
+        return out
+    finally:
+        try: os.unlink(pcm.name)
+        except OSError: pass
+        if tmpwav:
+            try: os.unlink(tmpwav.name)
+            except OSError: pass
+
 # ═══════════════ demo：免 key 全链路自测 ═══════════════
 def cmd_demo():
     print("🧪 voice-persona 自测（全本地免费，无需 key）")
@@ -137,7 +172,11 @@ def cmd_demo():
         audio = speak(reply, pname)
         print(f"🗣 [{p['style']}] {reply}")
         print(f"   🔊 {audio} ({os.path.getsize(audio)//1024}KB)")
-    print("\n✅ 全链路通过：语音输入 → 转写 → 人格回复 → 语音输出")
+    # 4) 双向闭环：人格语音 → 微信 silk
+    audio_yunyang = speak(personalize(txt, "yunyang"), "yunyang")
+    silk = to_silk(audio_yunyang)
+    print(f"🔁 回发闭环: 人格语音 → {silk} (微信 #!SILK_V3, {os.path.getsize(silk)//1024}KB)")
+    print("\n✅ 全链路通过：语音输入 → 转写 → 人格回复 → 语音输出 → 微信格式")
 
 def cmd_list():
     print("可用人格：")
@@ -168,6 +207,10 @@ def main():
 
     s5 = sub.add_parser("list", help="列出人格")
     s5.set_defaults(func=lambda a: cmd_list())
+
+    s6 = sub.add_parser("to_silk", help="音频→微信 silk 语音（回发语音气泡）")
+    s6.add_argument("audio"); s6.add_argument("--out", default="")
+    s6.set_defaults(func=lambda a: print(to_silk(a.audio, a.out)))
 
     a = ap.parse_args()
     a.func(a)
