@@ -55,6 +55,7 @@ link_script "$DEAI_DIR/deai.py"    deai-writer
 link_script "$DEAI_DIR/writer.py"  writer
 
 [ -f "$TARGET/video-to-text/scripts/vtt.py" ] && link_script "$TARGET/video-to-text/scripts/vtt.py" vtt
+[ -f "$TARGET/video-to-text/scripts/vtt.py" ] && link_script "$TARGET/video-to-text/scripts/vtt.py" v2t
 [ -f "$TARGET/doc-ocr/scripts/dococr.py" ] && link_script "$TARGET/doc-ocr/scripts/dococr.py" dococr
 [ -f "$TARGET/memory-manager/scripts/memcheck.py" ] && link_script "$TARGET/memory-manager/scripts/memcheck.py" memcheck
 [ -f "$TARGET/memory-graph/scripts/memory_graph.py" ] && link_script "$TARGET/memory-graph/scripts/memory_graph.py" memory-graph
