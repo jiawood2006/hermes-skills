@@ -13,7 +13,7 @@ metadata:
 
 # Doc-OCR 文档识别 + 结构化
 
-PDF / 扫描件 / 图片 → 可编辑文字 → **结构化数据**。有文字层的 PDF 直接提取，扫描件自动 OCR（macOS Vision 自带，中英文），OCR 后可用 LLM 抽取发票/合同字段、转表格。
+PDF / 扫描件 / 图片 → 可编辑文字 → **结构化数据**。有文字层的 PDF 直接提取，扫描件自动 OCR（macOS Vision 自带，中英文），**版面还原**（多栏/复杂排版按阅读顺序重排，不是裸行输出），OCR 后可用 LLM 抽取发票/合同字段、转表格。
 
 > 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/doc-ocr` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/doc-ocr/`。以下命令基于该路径。
 
@@ -35,16 +35,19 @@ python3 ~/.hermes/skills/utilities/doc-ocr/scripts/dococr.py 发票.jpg
 
 输出保存为 `<输入名>_ocr.txt`。
 
-### 2. 批量目录
+### 2. 批量目录（逐文件容错，坏文件不中断）
 
 ```bash
 python3 ~/.hermes/skills/utilities/doc-ocr/scripts/dococr.py ./扫描件/ -o 全部.txt
+# 批量完成输出汇总：成功 N/M + 失败清单（坏文件单独记录不中断整批）
 ```
 
-### 3. Markdown 输出
+### 3. Markdown 输出 / 多栏 PDF 强制版面还原
 
 ```bash
 python3 ~/.hermes/skills/utilities/doc-ocr/scripts/dococr.py 书.pdf --md
+# 多栏 PDF 文字层乱序时，强制走 Vision OCR 版面还原：
+python3 ~/.hermes/skills/utilities/doc-ocr/scripts/dococr.py 双栏论文.pdf --md --force-ocr
 ```
 
 ### 4. 结构化抽取（发票/合同/表格，需 LLM key）
@@ -78,9 +81,11 @@ pip3 install pymupdf pyobjc-framework-Vision
 ## 已知陷阱
 
 - **扫描件判定**：PDF 文字层 <20 字自动走 OCR，正常 PDF 直接提取。
+- **版面还原**：Vision OCR 按文字框坐标重排（从上到下、同行从左到右）；双栏印刷体会被当成"先左栏再右栏"处理，适合论文/报告，杂志花式排版可能仍乱序——用 `--force-ocr` + 目测。
 - **手写体**：Vision 对印刷体/清晰手写效果好，潦草手写不保证。
 - **隐私卖点**：文件在本机处理，不上传第三方（结构化抽取会调 LLM API，注意敏感文件）。
 - **字段缺失**：docstruct 对缺失字段填 null 不编造，OCR 质量差时字段会少。
+- **批量容错**：目录模式单文件失败会记录进汇总，不会中断整批。
 
 ## 快速验证 / Smoke Test
 
