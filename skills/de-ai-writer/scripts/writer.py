@@ -5,6 +5,7 @@ De-AI Writer — 写作引擎统一入口
 把 AI 文案/小说/营销文改写成自然、有真人味的文本，并提供风格克隆、变体、语气调节、质量评分。
 
 用法:
+  python3 writer.py check -t "文本" / 文件.txt         # AI味体检（免key：命中报告+指数）
   python3 writer.py demo                                # 免key本地演示（内置示例，无需API Key）
   python3 writer.py demo -t "文本" / 文件.txt           # 免key处理自己的文本
   python3 writer.py deai 输入.txt -o 输出.txt          # 去 AI 味（核心，需 LLM key 深度改写）
@@ -25,23 +26,58 @@ import sys, os, json, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from engine import call_llm, read_text, write_out
 
-# ---------- 核心提示词（产品核心资产） ----------
-DEAI_RULES = """【必须清除的 AI 味模式】
-1. 空洞拔高：删除"不仅...更是""彰显""标志着""至关重要""深远影响"等虚张声势的表述
-2. 排比三连：打破"创新、卓越、领先"式三连排比
-3. 万能衔接词：清除"此外""然而""值得注意的是""综上所述"等机械过渡
-4. 官方腔：去掉"赋能""抓手""闭环""颗粒度"等黑话
-5. 形容词堆砌：删掉"极致""巅峰""完美"等夸张词
-6. 模板化结尾：删除"未来可期""让我们拭目以待"式空话
-7. 重复替代词：避免用"该产品""此方案"反复替换主语
-8. 过度客套：删除"希望对您有帮助""欢迎随时联系"式废话
-9. 被动句式：能主动就主动（"文件被保存"→"系统保存了文件"）
-10. 完美工整：允许句子长短交错、口语化、轻微不完美
+# ---------- 核心提示词（产品核心资产 · 中文 AI 味模式库） ----------
+DEAI_RULES = """你是资深中文编辑，专长是去除 AI 味、恢复真人写作。中文 AI 味 ≠ 英文 AI 味：
+英文看 delve/em-dash，中文看"赋能/闭环/首先其次/综上所述/翻译腔"。
+按 8 类清除（每类给高频实例，命中同类自行扩展）：
+
+【1. 空洞拔高】
+- 句式："不仅...更是"（→"不光…也"）"标志着"（→"意味着"）"彰显了"（→"体现了"）
+- 词："至关重要""不可或缺""毋庸置疑""深远影响""举足轻重""前所未有的"
+- 自夸式拔高："值得信赖的选择""实力见证""品质保证"
+
+【2. 万能机械连接（句首连接词当装饰品时删）】
+- "首先/其次/再次/最后"（列表感）"总而言之/综上所述/总的来说/由此可见/不难发现"
+- "值得注意的是/需要注意的是/值得一提的是"（后文无真正"值得注意"内容就删）
+- "此外/与此同时/另外"（删后直接接下一句更利落）
+
+【3. 官方腔黑话（换人话）】
+- 词表：赋能(→支持)、闭环、抓手、颗粒度、底层逻辑、方法论、对齐、心智、破圈、
+  护城河、赛道、打法、红利、生态位、组合拳、沉淀、拉通、共建、复用、联动、反哺
+- 公文副词堆叠：进一步/切实/着力/大力/积极/持续/不断——只留一个必要的
+
+【4. 形容词堆砌 / 夸张词】
+- "极致""巅峰""完美""卓越""顶级""一流""超凡""颠覆性""革命性""史无前例"
+- 空泛的"非常非常""极其""无比"连用
+
+【5. 翻译腔（欧化句式）】
+- 名词化动词："进行了讨论/调查/分析"（→"讨论了/调查了/分析了"）
+- "被"字句滥用："被认为/被视为"（→ 主动）
+- "之一"句式："最重要的事情之一"（→ 直接说最重要的事）
+- "在...中扮演着重要角色"（→ 直接说做什么）
+- "关于...的问题"（→ 直接说问题）
+- "随着...的发展，..."（AI 万能开场，删"随着"句）
+- "不仅仅...而且...更是..."叠加
+
+【6. 模板化结尾 / 空话】
+- "未来可期""让我们拭目以待""让我们一起携手共创美好未来"
+- "开启/谱写新的篇章""砥砺前行""共创美好明天"
+- "希望对您有帮助""欢迎随时联系""如有任何问题请随时..."
+
+【7. 排比三连 / 工整病】
+- "创新、卓越、领先"式强制三连（该几个就几个）
+- 每段三句、句长均匀、结构对称到假——打破节奏，长短交错
+
+【8. 重复主语 / 过度客套 / chatbot 腔】
+- 反复用"该产品/此方案/其"替代（用"它"或直接重复名词）
+- "我相信/我们有信心"开场自我表态过多
+- "当然""确实""值得注意的是"高频口头禅
+- 删除"希望以上对您有帮助""如有任何疑问请随时联系我"式客服尾
 
 【写作要求】
 - 保留原意、事实、数据，只改表达
-- 用短句和长句交错，自然呼吸感
-- 可以有一点点个人态度（"说实话""我个人觉得"），但不要过度
+- 短句长句交错，自然呼吸感；允许轻微不完美
+- 可以有一点个人态度（"说实话""我个人觉得"），但不要过度
 - 中文优先，专有名词保留原文
 - 输出 ONLY 改写后的文本，不要任何解释、前言、后记"""
 
@@ -139,6 +175,20 @@ def cmd_review(args):
         print(out)
 
 
+def cmd_check(args):
+    """AI 味体检：writer.py check [文件] | -t 文本"""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from demo import show_check
+    text = args.text
+    if not text and args.input and args.input != "-":
+        with open(args.input, encoding="utf-8") as f:
+            text = f.read()
+    if not text:
+        print("用法: python3 writer.py check -t \"你的文本\" 或 writer.py check 文件.txt")
+        raise SystemExit(1)
+    show_check(text, no_color=args.no_color)
+
+
 def cmd_demo(args):
     """免 key 本地演示：writer.py demo [文件] | -t 文本"""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -156,6 +206,13 @@ def cmd_demo(args):
 def main():
     p = argparse.ArgumentParser(description="De-AI Writer 写作引擎")
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    # check（免 key AI 味体检）
+    p_check = sub.add_parser("check", help="AI味体检（免key：命中报告+指数）")
+    p_check.add_argument("input", nargs="?", default=None)
+    p_check.add_argument("-t", "--text", help="直接传文本")
+    p_check.add_argument("--no-color", action="store_true", help="关闭彩色输出")
+    p_check.set_defaults(func=cmd_check)
 
     # demo（免 key）
     p_demo = sub.add_parser("demo", help="免key本地演示（无需API Key）")
