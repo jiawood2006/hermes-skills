@@ -101,3 +101,11 @@ export LLM_MODEL="deepseek-chat"
 - **只提取明确信息**：LLM 不会编造（prompt 已限制），但过度模糊的文本提取质量会下降
 - **小说专用进阶版**：长篇小说推荐用 novel-magma-memory（POV/伏笔账本/情感图更细），本技能是通用轻量版
 
+## 快速验证 / Smoke Test
+
+```bash
+# 真实自测：初始化一个 5 秒完成的临时图谱
+python3 ~/.hermes/skills/utilities/memory-graph/scripts/memory_graph.py init --name "自测" --dir /tmp/mg_selftest
+python3 ~/.hermes/skills/utilities/memory-graph/scripts/memory_graph.py status --dir /tmp/mg_selftest
+# 期望：status 显示图谱已初始化、实体/关系计数为 0
+```
