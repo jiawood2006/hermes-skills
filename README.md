@@ -3,6 +3,8 @@
 > **中文**：开箱即用的 Hermes/Agent 技能集——复制目录即可安装，全部免费开源。
 > **English**: Ready-to-use Hermes/Agent skills — copy the folder to install, 100% free & open source.
 
+> 🎯 **定位 / Positioning**：GitHub 技能市场 99% 是英文开发工具——这里是稀缺的**中文场景实用技能**：抖音视频转文字、中文文档 OCR、中文去 AI 味、电商素材工坊。**Practical Chinese-language agent skills** — the rare gems in a market full of English dev tools: Douyin video→text, Chinese OCR, Chinese de-AI writing, e-commerce images.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent%20Skills-blue)](https://hermes-agent.nousresearch.com)
 [![agentskills.io](https://img.shields.io/badge/agentskills.io-Compatible-8A2BE2)](https://agentskills.io)
@@ -32,6 +34,21 @@
 
 *去掉"首先/其次/总而言之"，恢复真人说话的样子*
 *Removes "firstly / moreover / in conclusion" — sounds like a human again*
+
+---
+
+## 🎬 30 秒体验（零安装 · 无需 Key）/ Try it in 30s
+
+**去 AI 味** —— 不用装任何东西，直接跑（内置示例，纯本地规则引擎）：
+
+```bash
+curl -sL https://raw.githubusercontent.com/jiawood2006/hermes-skills/main/skills/de-ai-writer/scripts/demo.py | python3 -
+# 处理你自己的文本:
+curl -sL https://raw.githubusercontent.com/jiawood2006/hermes-skills/main/skills/de-ai-writer/scripts/demo.py -o demo.py \
+  && python3 demo.py -t "首先，这款产品不仅性能卓越，更是彰显了我们的创新精神。"
+```
+
+输出 before/after 对照 + "共清除 N 处 AI 味表达"——效果立现。
 
 ---
 
@@ -79,11 +96,11 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 - **适用**：短视频文案采集、内容情报、爆款拆解
 - **依赖**：macOS/Linux；转写需 `pip3 install faster-whisper`；分析需 LLM key
 
-### 2️⃣ de-ai-writer · 写作引擎
-- **中文**：去 AI 味 + **风格克隆 + 变体生成 + 语气调节 + 8 维度评分**
-- **English**: De-AI + style cloning + variants + tone control + quality scoring
+### 2️⃣ de-ai-writer · 中文去 AI 味写作引擎
+- **中文**：去 AI 味 + **免key demo 演示** + 风格克隆 + 变体生成 + 语气调节 + 8 维度评分
+- **English**: De-AI + **no-key demo** + style cloning + variants + tone control + quality scoring
 - **适用**：公众号、小红书、电商文案、小说文风模仿
-- **依赖**：需 LLM key（`--prompt-only` 零成本模式可用）
+- **依赖**：demo 模式**零依赖免 key**；深度改写需 LLM key（`--prompt-only` 零成本模式也可用）
 
 ### 3️⃣ doc-ocr · 文档识别 + 结构化
 - **中文**：PDF/扫描件/图片 OCR + **发票/合同字段抽取 + 表格转 CSV**
@@ -120,16 +137,21 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 ## 🚀 安装 / Installation
 
 ```bash
-# 方式一：hermes skills 命令（推荐，自动按分类安装到 ~/.hermes/skills/utilities/）
-hermes skills install jiawood2006/hermes-skills/skills/video-to-text
+# 方式一：一键安装脚本（最简单 —— 装全部 + 创建全局命令 deai-demo/vtt/dococr 等）
+git clone https://github.com/jiawood2006/hermes-skills.git
+cd hermes-skills && ./install.sh
+# 装完直接: deai-demo / deai-demo -t "你的文本"
+
+# 方式二：hermes skills 命令（推荐给 Hermes 用户，自动按分类安装）
 hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer
+hermes skills install jiawood2006/hermes-skills/skills/video-to-text
 hermes skills install jiawood2006/hermes-skills/skills/doc-ocr
 hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio
 hermes skills install jiawood2006/hermes-skills/skills/memory-manager
 hermes skills install jiawood2006/hermes-skills/skills/memory-graph
 hermes skills install jiawood2006/hermes-skills/skills/ai-project-advisor
 
-# 方式二：复制目录（任意 Agent 都可用，路径与 SKILL.md 保持一致）
+# 方式三：复制目录（任意 Agent 都可用，路径与 SKILL.md 保持一致）
 mkdir -p ~/.hermes/skills/utilities
 cp -r skills/* ~/.hermes/skills/utilities/
 ```
