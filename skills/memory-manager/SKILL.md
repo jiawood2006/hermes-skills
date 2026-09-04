@@ -61,3 +61,10 @@ python3 ~/.hermes/skills/utilities/memory-manager/scripts/memcheck.py --full   #
 - **凭证纪律**：token/密码/API key 一律不落记忆明文
 - **记忆 vs skill**：流程类知识存 skill（按需加载），事实类存记忆（每轮注入）——放错地方都浪费
 
+## 快速验证 / Smoke Test
+
+```bash
+# 真实自测：扫描 ~/.hermes/memories（或任意目录）出健康报告
+python3 ~/.hermes/skills/utilities/memory-manager/scripts/memcheck.py --dir ~/.hermes/memories
+# 期望：输出 token 统计 + 冗余建议（无 LLM key 也可跑，规则模式）
+```
