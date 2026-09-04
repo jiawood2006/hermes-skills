@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
 """
-De-AI Writer Demo Engine — 免 API Key 本地去 AI 味演示引擎
+De-AI Writer Local Engine — 中文 AI 味本地引擎（免 API Key）
 ============================================================
-纯规则、零依赖、不联网——用正则把最常见的 AI 味口水词/机械连接词/
-空话模板删掉，让你在 30 秒内看到"去 AI 味"的真实效果。
+纯规则、零依赖、不联网。两个能力：
+  1. rewrite（demo 模式）— 删掉最常见的中文 AI 味口水词/机械连接词/空话模板
+  2. check（体检模式）  — 扫描命中报告 + AI味指数 0-100
 
 为什么有它：
   完整版 deai（writer.py deai）用 LLM 深度改写，效果好但需要 API Key。
-  很多人第一次用没有 key —— 先用 demo 引擎看效果，再决定配不配 key。
-  规则引擎是"轻度去味"：只删安全的口水词，不重写句子，保证语义不变。
+  很多人第一次用没有 key —— 先用本地引擎看效果/体检，再决定配不配 key。
+  本地引擎是"轻度处理"：只动安全的口水词，不重写句子，保证语义不变。
+
+中文 AI 味与英文完全不同：英文看 delve/em-dash，中文看"赋能/闭环/首先其次/
+综上所述/让我们拭目以待"。这里收录的是中文特有 + AI 高频模式，按类组织：
+  空话结尾 / 机械连接 / 空洞拔高 / 官方黑话 / 夸张词 / 重复主语 / 口水词
 
 用法:
-  python3 demo.py                     # 跑内置示例（推荐第一次用）
-  python3 demo.py 输入.txt            # 处理文件
-  python3 demo.py -t "要改写的文本"   # 直接传文本
-  echo "文本" | python3 demo.py -     # 管道输入
+  python3 demo.py                         # 内置示例改写演示
+  python3 demo.py 输入.txt                # 处理文件
+  python3 demo.py -t "要改写的文本"        # 直接传文本（改写）
+  python3 deai.py check -t "文本"          # AI味体检（在 deai.py/writer.py 入口）
 """
 import sys, os, re, argparse
 
@@ -33,9 +38,15 @@ RULES = [
     (r"如有任何疑问[，,]请(随时|及时).{0,12}?[。！!]", "", "空话结尾"),
     (r"在未来的日子里[，,]", "", "空话结尾"),
     (r"让我们共同期待[^。！!]*[。！!]", "", "空话结尾"),
+    (r"让我们一起(?:携手|共创|见证|书写|开启|迈向|拥抱)[^。！!]{0,12}", "", "空话结尾"),
+    (r"(?:开启|书写|翻开|谱写)(?:新的|崭新)?(?:篇章|华章|序幕)[！!。]?", "", "空话结尾"),
+    (r"共创(?:美好)?(?:未来|明天)[！!。]?", "", "空话结尾"),
+    (r"砥砺前行[。！!]?", "", "空话结尾"),
+    (r"赋能(?:未来|行业|产业)[。！!]?", "", "空话结尾"),
 
     # ── 万能机械连接词（句首删掉，后面内容保留）──
-    (r"(?:^|(?<=[。！!？?]))\s*(?:总而言之|综上所述|总的来说|总体而言|综上|总的来说)[，,]\s*", "", "机械连接"),
+    (r"(?:^|(?<=[。！!？?]))\s*(?:总而言之|综上所述|总的来说|总体而言|综上|总的来说|总之)[，,]\s*", "", "机械连接"),
+    (r"(?:^|(?<=[。！!？?]))\s*(?:由此可见|由此可知|不难发现|可见)[，,]\s*", "", "机械连接"),
     (r"(?:^|(?<=[。！!？?]))\s*(?:值得注意的是|需要注意的是|值得一提的是|不可否认的是)[，,]\s*", "", "机械连接"),
     (r"(?:^|(?<=[。！!？?]))\s*(?:此外|与此同时|另外|再者|除此之外)[，,]\s*", "", "机械连接"),
     (r"(?:^|(?<=[。！!？?]))\s*(?:首先|其次|再次|最后|第一|第二|第三)[，,]\s*", "", "机械连接"),
@@ -57,6 +68,9 @@ RULES = [
     # ── 官方腔黑话（换人话）──
     (r"赋能用户", "给用户", "官方黑话"),
     (r"赋能", "支持", "官方黑话"),
+    (r"拉通", "打通", "官方黑话"),
+    (r"沉淀", "积累", "官方黑话"),
+    (r"共建", "一起做", "官方黑话"),
     (r"抓手", "办法", "官方黑话"),
     (r"闭环", "循环", "官方黑话"),
     (r"颗粒度", "细致程度", "官方黑话"),
@@ -133,6 +147,87 @@ def fmt_stats(stats: dict) -> str:
     total = sum(stats.values())
     detail = "、".join(f"{k}×{v}" for k, v in sorted(stats.items(), key=lambda x: -x[1]))
     return f"共清除 {total} 处 AI 味表达（{detail}）"
+
+
+def scan(text: str):
+    """AI 味体检：扫描文本，返回所有命中 [(label, match, line_no, context)]"""
+    findings = []
+    for pattern, repl, label in RULES:
+        for m in re.finditer(pattern, text):
+            start = m.start()
+            line_no = text.count("\n", 0, start) + 1
+            ctx = text[max(0, start - 12): min(len(text), m.end() + 18)].replace("\n", " ")
+            findings.append({
+                "label": label,
+                "match": m.group(0)[:40],
+                "line": line_no,
+                "ctx": ctx.strip(),
+            })
+    return findings
+
+
+def ai_score(text: str) -> int:
+    """启发式 AI 味指数 0-100（基于命中密度，非科学检测，仅演示）"""
+    n = len(scan(text))
+    total = max(1, len(text))
+    per_k = n * 1000 / total          # 每千字命中数
+    score = min(100, int(28 + per_k * 14))  # 0处≈28(基线) 5处/千字≈98
+    return score
+
+
+def show_check(text: str, no_color: bool = False) -> None:
+    """打印 AI 味体检报告（findings + 指数）"""
+    if not text.strip():
+        raise SystemExit("❌ 没有输入内容")
+    findings = scan(text)
+    score = ai_score(text)
+
+    RED, ORANGE, GREEN, DIM, BOLD, END = "", "", "", "", "", ""
+    if not no_color and sys.stdout.isatty():
+        RED, ORANGE, GREEN, DIM, BOLD, END = ("\033[31m", "\033[33m", "\033[32m",
+                                              "\033[2m", "\033[1m", "\033[0m")
+
+    total_chars = len(text)
+    print(f"{BOLD}📋 AI 味体检报告 / AI-Smell Check{END}")
+    print("━" * 46)
+    print(f"总字数 {total_chars} ｜ 命中模式 {len(findings)} 处 ｜ ", end="")
+
+    if score >= 70:
+        color, verdict = RED, "AI味重，一眼假"
+    elif score >= 45:
+        color, verdict = ORANGE, "有AI味，需要改"
+    else:
+        color, verdict = GREEN, "比较像人写的"
+    print(f"AI味指数 {color}{score}/100{END}（{verdict}）")
+    print("━" * 46)
+
+    if not findings:
+        print("✅ 没命中明显 AI 味模式——这段已经挺像人写的了。")
+        print("\n想深度优化？writer.py review 可做 8 维度质量评分（需 LLM key）。")
+        return
+
+    # 按类别分组展示
+    by_label = {}
+    for f in findings:
+        by_label.setdefault(f["label"], []).append(f)
+    for label, items in sorted(by_label.items(), key=lambda x: -len(x[1])):
+        shown = items[:3]
+        more = len(items) - len(shown)
+        print(f"{BOLD}{label} ×{len(items)}{END}")
+        for it in shown:
+            ctx = it["ctx"]
+            # 高亮命中词（可能被截断，找不到就原样显示）
+            hit = it["match"]
+            i = ctx.find(hit[:6])
+            if i >= 0:
+                j = i + len(hit[:6])
+                ctx = ctx[:i] + f"{ORANGE if ORANGE else ''}{ctx[i:j]}{END if END else ''}" + ctx[j:]
+            print(f"  · L{it['line']} …{ctx}…")
+        if more:
+            print(f"  …还有 {more} 处")
+    print("━" * 46)
+    print("💡 修复：python3 deai.py demo -t \"文本\" 免key一键改写（轻度）；")
+    print("   配 API Key 后 writer.py deai 深度改写。")
 
 
 def show_result(text: str, no_color: bool = False) -> None:
