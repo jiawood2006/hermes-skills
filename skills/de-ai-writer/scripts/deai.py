@@ -24,31 +24,25 @@ De-AI Writer — AI 文案去味器（通用版 CLI）
 """
 import sys, os, json, argparse, urllib.request
 
-# ---------- 核心提示词（产品核心资产） ----------
-CORE_PROMPT = """你是一位资深中文编辑，专长是去除 AI 味、恢复真人写作风格。请把用户提供的文本改写成自然、有人味的中文。
+# ---------- 核心提示词（产品核心资产 · 中文 AI 味模式库） ----------
+CORE_PROMPT = """你是资深中文编辑，专长是去除 AI 味、恢复真人写作。中文 AI 味 ≠ 英文 AI 味：英文看 delve/em-dash，中文看"赋能/闭环/首先其次/翻译腔"。按 8 类清除：
 
-【必须清除的 AI 味模式】
-1. 空洞拔高：删除"不仅...更是""彰显""标志着""至关重要""深远影响"等虚张声势的表述
-2. 排比三连：打破"创新、卓越、领先"式三连排比
-3. 万能衔接词：清除"此外""然而""值得注意的是""综上所述"等机械过渡
-4. 官方腔：去掉"赋能""抓手""闭环""颗粒度"等黑话
-5. 形容词堆砌：删掉"极致""巅峰""完美"等夸张词
-6. 模板化结尾：删除"未来可期""让我们拭目以待"式空话
-7. 重复替代词：避免用"该产品""此方案"反复替换主语
-8. 过度客套：删除"希望对您有帮助""欢迎随时联系"式废话
-9. 被动句式：能主动就主动（"文件被保存"→"系统保存了文件"）
-10. 完美工整：允许句子长短交错、口语化、轻微不完美
+【1. 空洞拔高】"不仅...更是"（→不光…也）"标志着"（→意味着）"彰显了"（→体现了）；至关重要/不可或缺/毋庸置疑/深远影响
+【2. 万能机械连接】句首"首先/其次/最后/总而言之/综上所述/总的来说/值得注意的是/此外"——后文没有真内容承接就当装饰删掉
+【3. 官方腔黑话】赋能(→支持)/闭环/抓手/颗粒度/底层逻辑/方法论/对齐/心智/破圈/护城河/赛道/打法/红利/沉淀/拉通/共建；公文副词"进一步/切实/着力/大力/积极"只留必要
+【4. 形容词堆砌】极致/巅峰/完美/卓越/顶级/一流/超凡/颠覆性/革命性/史无前例
+【5. 翻译腔（欧化）】"进行了讨论"（→讨论了）"被广泛认为"（→主动句）"最重要的事情之一"（→最重要的事）"在...中扮演着重要角色""随着...的发展，..."万能开场
+【6. 模板化结尾】未来可期/让我们拭目以待/开启谱写新的篇章/砥砺前行/共创美好未来/希望对您有帮助/欢迎随时联系
+【7. 排比三连/工整病】"创新、卓越、领先"式强制三连；句长句构均匀到假——长短交错、允许轻微不完美
+【8. 重复主语/客套/chatbot腔】反复"该产品/此方案/其"（用"它"）；"我相信/我们有信心"表态过多；"希望以上对您有帮助"式客服尾
 
-【写作要求】
-- 保留原意、事实、数据，只改表达
-- 用短句和长句交错，自然呼吸感
-- 可以有一点点个人态度（"说实话""我个人觉得"），但不要过度
-- 中文优先，专有名词保留原文
-- 输出 ONLY 改写后的文本，不要任何解释、前言、后记
+【写作要求】保留原意事实数据只改表达；短句长句交错自然；可有一点个人态度但不过度；中文优先专名保留；输出 ONLY 改写文本，无任何解释前言后记
+
+【用户文本】
 """
 
 def build_prompt(text: str) -> str:
-    return CORE_PROMPT + "\n\n【用户文本】\n" + text
+    return CORE_PROMPT + text
 
 def load_config():
     """读取配置：参数优先，其次 ~/.deai_writer.conf 配置文件。
@@ -86,6 +80,26 @@ def call_llm(prompt: str, api_key: str = "", base_url: str = "", model: str = ""
     return data["choices"][0]["message"]["content"].strip()
 
 def main():
+    # ── check 快捷模式：deai.py check [文件] | -t "文本"（AI味体检，免key）──
+    if len(sys.argv) > 1 and sys.argv[1] == "check":
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from demo import show_check
+        ap_c = argparse.ArgumentParser(description="deai.py check — AI味体检（免key）")
+        ap_c.add_argument("input", nargs="?", help="输入文件")
+        ap_c.add_argument("-t", "--text", help="直接传入文本")
+        ap_c.add_argument("--no-color", action="store_true", help="关闭彩色输出")
+        c = ap_c.parse_args(sys.argv[2:])
+
+        text = c.text
+        if not text and c.input:
+            with open(c.input, encoding="utf-8") as f:
+                text = f.read()
+        if not text:
+            print("用法: python3 deai.py check -t \"你的文本\" 或 deai.py check 文件.txt")
+            raise SystemExit(1)
+        show_check(text, no_color=c.no_color)
+        return
+
     # ── demo 快捷模式：deai.py demo [文件] | -t "文本"（免key本地演示）──
     if len(sys.argv) > 1 and sys.argv[1] == "demo":
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
