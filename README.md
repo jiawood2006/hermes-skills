@@ -22,7 +22,7 @@
 
 这些技能已通过审核，收录进以下 Agent 技能目录（搜索即可找到）：
 
-- ✅ [davepoon/buildwithclaude](https://github.com/davepoon/buildwithclaude)（Claude Skills 目录 · 3.4k★）— doc-ocr / video-to-text / de-ai-writer / ecommerce-material-studio / project-milestone-tracker
+- ✅ [davepoon/buildwithclaude](https://github.com/davepoon/buildwithclaude)（Claude Skills 目录 · 3.4k★）— doc-ocr / video-to-text / de-ai-writer / ecommerce-material-studio / project-milestone-tracker / voice-persona（2026-09-08 merged #311）
 - ✅ [0xNyk/awesome-hermes-agent](https://github.com/0xNyk/awesome-hermes-agent)（Hermes Agent 技能目录 · 5.5k★）
 - ✅ agentskills.io / DeepSeek Harness 插件生态（dsh-plugin topic 自动同步）
 
