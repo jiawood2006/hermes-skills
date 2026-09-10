@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace-manifest.json",
+  "name": "hermes-skills",
+  "owner": {
+    "name": "涛哥 / jiawood2006",
+    "url": "https://github.com/jiawood2006"
+  },
+  "description": "中文实用 Agent 技能包 / Practical Chinese-language agent skills. 去AI味、OCR、视频转文字、电商素材、记忆管理。",
+  "plugins": [
+    {
+      "name": "hermes-skills",
+      "source": "./",
+      "description": "8 个中文场景实用技能：de-ai-writer（中文去AI味+35条模式清单）、doc-ocr（文档识别）、video-to-text（视频转文字）、ecommerce-material-studio（电商素材）、memory-manager / memory-graph（记忆管理）、voice-persona（语音人格）、ai-project-advisor（工程顾问）。",
+      "license": "MIT",
+      "keywords": [
+        "chinese",
+        "writing",
+        "de-ai",
+        "ocr",
+        "video-to-text",
+        "ecommerce",
+        "memory",
+        "agent-skills"
+      ]
+    }
+  ]
+}
