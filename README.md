@@ -195,7 +195,7 @@ cp -r skills/* ~/.hermes/skills/utilities/
 
 > 💡 兼容 agentskills.io 开放标准——其他支持 Skills 的 Agent 也能用。
 > 📁 安装后脚本路径：`~/.hermes/skills/utilities/<技能名>/scripts/`（各技能 SKILL.md 内命令均基于此路径）。
-> ✅ 每次推送自动跑 [Validate Skills](.github/workflows/validate-skills.yml)——全部 SKILL.md 的 frontmatter 经 CI 校验（`python3 scripts/validate_skills.py` 可本地复跑）。
+> ✅ 技能校验：`python3 scripts/validate_skills.py` 一键检查全部 SKILL.md 的 frontmatter 合规性（名称/描述/引用文件），推 PR 前建议先跑一遍。
 
 ---
 
@@ -211,7 +211,7 @@ cp -r skills/* ~/.hermes/skills/utilities/
 
 ## 📝 更新日志 / Changelog
 
-- **2026-09-10** — de-ai-writer **v2.2.0**：新增 35 条中文 AI 腔模式清单（`references/ai-patterns-zh.md`）+ 30 秒快检表 + 推荐工作流；仓库新增 **Claude Code 插件市场**安装方式（`.claude-plugin/`）；新增 **CI 技能校验**（`scripts/validate_skills.py` + GitHub Action）；建立**持续对标机制**与 `docs/benchmarks/`
+- **2026-09-10** — de-ai-writer **v2.2.0**：新增 35 条中文 AI 腔模式清单（`references/ai-patterns-zh.md`）+ 30 秒快检表 + 推荐工作流；仓库新增 **Claude Code 插件市场**安装方式（`.claude-plugin/`）；新增**技能校验脚本** `scripts/validate_skills.py`；建立**持续对标机制**与 `docs/benchmarks/`
 - **2026-09-08** — voice-persona 收录进 buildwithclaude 技能列表（PR #311 已合并）
 - **2026-09-06** — README 增加 featured-in 徽章（提升搜索可发现性）
 - **2026-09-04** — 新增 **voice-persona**（第 8 个技能，微信语音双工 + 6 人格）；竞品调研驱动改造：README 故事化、跨平台安装、免 key 演示（de-ai-writer `check`/`demo`）
