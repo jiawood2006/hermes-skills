@@ -1,7 +1,7 @@
 ---
 name: de-ai-writer
-description: '写作引擎（Writing Engine）。用户提供文本，需要去AI味、风格克隆、多版本变体、语气调节、质量评分时使用。内置免key demo/check（AI味体检）无需 API Key。De-AI Writer: remove AI-smell, AI-smell check, clone style, variants, tone, quality score — full Chinese writing engine.'
-version: 2.1.0
+description: '写作引擎（Writing Engine）。用户提供文本，需要去AI味、AI味体检、风格克隆、多变体、语气调节、质量评分时使用。内置 35 条中文 AI 腔模式清单 + 免key本地规则引擎（60+规则）。De-AI Writer: Chinese AI-smell removal & check, with a 35-pattern catalog, zero-key local engine, style clone, variants, tone, quality score.'
+version: 2.2.0
 author: 涛哥
 license: MIT
 metadata:
@@ -18,6 +18,23 @@ metadata:
 不止去味，是一个完整中文写作引擎：**AI味体检 → 去味改写 → 风格克隆 → 变体 → 语气 → 评分**。
 
 > 📁 **安装**：`hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer` 或按 README 方式二复制 → 默认在 `~/.hermes/skills/utilities/de-ai-writer/`。以下命令基于该路径。
+
+> 📚 **核心知识库**：`references/ai-patterns-zh.md` —— **35 条中文 AI 腔模式**，分 5 组（摆姿势 / 机械节奏 / 注水借势 / 格式装饰 / 助手残留），每条给「识别特征 → 为什么假 → 改前/改后」。**改写前先扫一遍，标出命中位置再动手。** 纯 Markdown，不装本技能也能直接丢给任何 AI 当提示词用。
+
+## 30 秒快检（最常命中的 8 条）
+
+| # | 模式 | 一眼识别 | 怎么改 |
+|:--|:--|:--|:--|
+| 1 | 不是 X，而是 Y | 不仅是…更是…／与其说…不如说… | 删掉否定的一半，直接说结论 |
+| 2 | 高频 AI 词 | 赋能／闭环／抓手／底层逻辑／生态位 | 换成具体动作和数字 |
+| 16 | 拔高意义 | 具有里程碑意义／奠定了坚实基础／展望未来 | 保留事实，删掉意义，停在最后一个具体事实 |
+| 22 | 公文套话 | 高度重视／狠抓落实／压实责任／形成合力 | 换成"谁、做了什么、结果如何" |
+| 25 | "随着…的发展"开头 | 随着社会的进步／在当今这个…的时代 | 直接从具体那件事写起 |
+| 13 | 排比口号体 | 既要…又要…还要…／以 X 为抓手 | 用具体数字和动作替换气势 |
+| 4 | 开场铺垫 | 让我们一起来看看／先划重点／有一说一 | 删掉整个铺垫句 |
+| 31 | 聊天机器人残留 | 希望对你有帮助／当然可以！／需要我展开吗？ | 直接删，只留内容 |
+
+> 另外 27 条见 `references/ai-patterns-zh.md`。**注意：单条命中不算证据**——标注 `弱证据` 的模式（破折号、限定词、被动、的-字堆叠、引号）要同段落凑够 2 条以上才动手。
 
 ## 触发条件
 
@@ -102,7 +119,15 @@ python3 ~/.hermes/skills/utilities/de-ai-writer/scripts/writer.py review 稿子.
 
 Hook/Pacing/Emotion/**AI Smell**/Clarity/Persuasion/Structure/Readability 8 维评分 + 3 条改进建议。
 
-## 中文 AI 味模式库（8 类）
+## 三套去味机制怎么选
+
+| 机制 | 依赖 | 覆盖 | 适用 |
+|:--|:--|:--|:--|
+| **模式清单**（35 条） | 无（纯文档） | 全 | 人工/任意 AI 对照排查，**改写前必扫** |
+| **本地引擎**（`check` / `demo`） | 无 key、零依赖 | 可正则化的 60+ 规则 | 快速体检、轻度去味，不烧 token |
+| **LLM 深度改写**（`deai`） | 需 key（或 `--prompt-only`） | 全部 8 类含句式语义层 | 复杂重构：翻译腔、排比破势、节奏调整 |
+
+## 中文 AI 味模式库（8 类速查）
 
 | # | 类别 | 高频实例（→ 人话） |
 |---|------|------|
@@ -115,7 +140,7 @@ Hook/Pacing/Emotion/**AI Smell**/Clarity/Persuasion/Structure/Readability 8 维�
 | 7 | 排比工整 | "创新、卓越、领先"强制三连、句句等长结构对称 |
 | 8 | 客套chatbot | 该产品/此方案反复指代（→它）、我相信表态过多、客服式尾句 |
 
-本地引擎（demo/check）执行其中可安全正则化的部分；LLM 深度改写（deai）执行全部 8 类含句式语义层。
+> 这是**执行层**的 8 类速查；**识别层**的完整 35 条（含识别特征、病因、改前/改后对照）见 `references/ai-patterns-zh.md`。本地引擎（demo/check）执行其中可安全正则化的部分；LLM 深度改写（deai）执行全部 8 类含句式语义层。
 
 ## 配置（API Key）
 
@@ -137,19 +162,51 @@ export LLM_MODEL="deepseek-chat"
 ## 文件结构
 
 ```
+SKILL.md                          # 本文件：功能入口
+references/
+└── ai-patterns-zh.md             # ★ 35 条中文 AI 腔模式清单（核心知识库）
 scripts/
 ├── writer.py    # 统一入口（check/demo/deai/stylize/variants/tone/review）
 ├── demo.py      # 中文AI味本地引擎（check体检+改写，60+规则，零依赖）
 ├── engine.py    # LLM 调用 + 配置加载
 └── deai.py      # 简版入口（check/demo + 深度改写）
+assets/
+└── alipay_qr.jpg
 ```
+
+## 推荐工作流
+
+1. **体检** → `writer.py check` 拿到 AI味指数 + 命中分类（免 key，零成本）
+2. **扫清单** → 读 `references/ai-patterns-zh.md`，标出命中的模式编号和原文片段（免 key）
+3. **改写** → 轻微问题用 `demo`（本地规则）；复杂句式用 `deai`（LLM 深度）
+4. **复检** → 再跑一次 `check`，或 `review` 看 AI Smell 维度是否下降
+
+只做检测不改写时，第 1、2 步就够了——把命中的模式编号和原文片段列给用户即可。
 
 ## 已知陷阱
 
 - **本地引擎是轻度处理**：只清安全的口水词/连接词/模板句，复杂句式（翻译腔重构、排比破势）交给 LLM 深度版
 - **check 指数是启发式**：基于命中密度估算，用于快速感知，不是科学检测
+- **不要过度改写**：模式清单里标注 `弱证据` 的条目（破折号、限定词、被动、的-字堆叠、引号），单条命中就动手会把正常人也写成机器人。**多条同时出现才是可靠依据。**
+- **保留人味细节**：具体的地址/奇怪的引语/矛盾的情绪/有年代感的梗/自我修正——这些是真人标志，改写时**必须原样保留**
+- **引文与专有名词不动**：引号内、标题里、正在讨论该说法本身的段落，命中的词一律不改
 - **风格克隆样本要精炼**：样本太长（>4000 字）自动截断；选 3-5 段最能代表风格的文字最有效
 - **变体数量**：`-n` 最大 6
 - **review 输出**：依赖 LLM 返回 JSON，个别模型格式不稳时直接打印原文
 - **中文优先**：专有名词/品牌名保留原文不翻译
 
+## 💛 免费使用 · 自愿支持
+
+**本技能完全免费使用。**
+
+觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
+
+![支持](assets/alipay_qr.jpg)
+
+> 支持过我的人，后续 Pro 版/批量服务有优惠。
+> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
+
+## 来源与致谢
+
+- **识别层**的 35 条模式清单：框架参考 Wikipedia [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)（WikiProject AI Cleanup 维护）与 [blader/humanizer](https://github.com/blader/humanizer)（MIT），中文特有腔调（公文套话、互联网黑话、排比口号体、"随着…的发展"等）由本项目补充
+- **执行层**的 8 类模式库与本地规则引擎：本项目原创
