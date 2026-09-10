@@ -170,8 +170,6 @@ scripts/
 ├── demo.py      # 中文AI味本地引擎（check体检+改写，60+规则，零依赖）
 ├── engine.py    # LLM 调用 + 配置加载
 └── deai.py      # 简版入口（check/demo + 深度改写）
-assets/
-└── alipay_qr.jpg
 ```
 
 ## 推荐工作流
@@ -195,16 +193,13 @@ assets/
 - **review 输出**：依赖 LLM 返回 JSON，个别模型格式不稳时直接打印原文
 - **中文优先**：专有名词/品牌名保留原文不翻译
 
-## 💛 免费使用 · 自愿支持
+## 💛 支持这个项目
 
-**本技能完全免费使用。**
+完全免费使用、MIT 开源。觉得有用的话：
 
-觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
-
-![支持](assets/alipay_qr.jpg)
-
-> 支持过我的人，后续 Pro 版/批量服务有优惠。
-> 想提需求、反馈问题，欢迎到 GitHub 提 Issue：https://github.com/jiawood2006/hermes-skills/issues
+- ⭐ 给仓库点个 Star：https://github.com/jiawood2006/hermes-skills
+- 🐛 报 Bug / 提需求：https://github.com/jiawood2006/hermes-skills/issues
+- 🔀 欢迎 PR
 
 ## 来源与致谢
 
