@@ -1,7 +1,7 @@
 ---
 name: video-to-text
-description: '视频内容情报。用户发抖音分享链接（自动下载+语音转写全文）、B站链接、或本地视频文件时使用。转写后可用 LLM 生成内容摘要和爆款结构拆解。Video to text: Douyin link → auto download → transcribe → viral-content analysis in one command.'
-version: 3.0.0
+description: '视频内容情报。用户发抖音分享链接（自动下载+语音转写全文）、B站链接、或本地视频/音频文件时使用。可输出文字稿、SRT/VTT 字幕（带真实时间戳），转写后可用 LLM 生成内容摘要和爆款结构拆解。中文转写默认输出简体+标点并按句切分。Video to text: Douyin link → auto download → transcribe → subtitle (SRT/VTT) → viral-content analysis in one command.'
+version: 3.1.0
 author: 涛哥
 license: MIT
 metadata:
@@ -90,7 +90,34 @@ tags: ["话题1", "话题2"]
 [00:05] 这款产品…
 ```
 
-### 5. 对已有转写文本做分析
+### 5. 输出字幕文件（SRT / VTT，带真实时间戳）
+
+想剪视频、上传 YouTube/B站字幕、或做逐句校对时，直接出字幕文件：
+
+```bash
+# 文字稿 + 附带 SRT 字幕（最常用）
+python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py 视频.mp4 --subtitles srt
+
+# 同时出 SRT 和 VTT
+python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py 视频.mp4 --subtitles srt,vtt
+
+# 只要字幕，不要文字稿
+python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py 视频.mp4 --format srt
+```
+
+- 输出 `<标题>_transcript.srt`（剪映/Premiere/YouTube 通用）或 `.vtt`（网页播放器通用）
+- **中文默认输出简体 + 标点**，并**按句切分**（不会一条字幕横跨十几秒）
+- 切分阈值可用环境变量调：`VTT_MAX_CHARS=18`（每条约多少字）、`VTT_MAX_DUR=7`（每条最长秒数）
+
+### 6. 指定转写语言
+
+```bash
+python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py 英文视频.mp4 --asr-lang en
+```
+
+缺省 `zh`（普通话）。中文字幕会额外注入提示词引导简体输出。
+
+### 7. 对已有转写文本做分析
 
 ```bash
 python3 ~/.hermes/skills/utilities/video-to-text/scripts/analyze.py 转写.md --all
@@ -107,6 +134,10 @@ python3 ~/.hermes/skills/utilities/video-to-text/scripts/analyze.py 转写.md --
 say -v "Ting-Ting" "大家好，这是一段测试语音" -o /tmp/t.m4a   # Linux 可跳过
 python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py /tmp/t.m4a --out-dir /tmp/vtt_test
 # 期望：/tmp/vtt_test 出现 *_transcript.md 且含"测试语音"附近文本
+
+# 字幕功能自测（应得到简体带标点、按句切分的 SRT）
+python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py /tmp/t.m4a --subtitles srt --out-dir /tmp/vtt_test
+# 期望：/tmp/vtt_test 出现 *_transcript.srt，含 --> 时间戳行
 ```
 
 ## 依赖（首次使用时安装）
@@ -125,5 +156,13 @@ pip3 install faster-whisper        # 默认本地转写（首次下载 tiny 模�
 - **play_addr URL 过期**：SSR 解析出的视频 URL 可能 404，此时下载失败会提示手动提供文件（自动降级不中断）。
 - **图文内容**：duration=0 且下载文件 <1MB 是图文（无音频），只输出元数据，不编造内容。
 - **whisper 转写慢**：Intel Mac 3 分钟视频约 5 分钟；已自动 `language='zh'` + VAD 过滤静音。要更快/更准用 `--engine sensevoice`。
+- **中文默认输出繁体（已修）**：whisper 对中文常输出繁体、且几乎不加标点。本技能已默认注入 `initial_prompt` 引导**简体 + 标点**；如需自定义，设环境变量 `WHISPER_INITIAL_PROMPT`（置空则关闭该引导）。
+- **准确率取决于模型大小**：默认 `WHISPER_MODEL=tiny`（~75MB，快但易错字）。**要可用的转写质量就换 `small`/`medium`**：
+  ```bash
+  WHISPER_MODEL=small python3 ~/.hermes/skills/utilities/video-to-text/scripts/vtt.py 视频.mp4 --subtitles srt
+  ```
+  首次会下载模型（国内网络建议 `export HF_ENDPOINT=https://hf-mirror.com`）。
+- **字幕切分粒度可调**：默认按标点/18 字/7 秒切条。要更碎或更整用 `VTT_MAX_CHARS`、`VTT_MAX_DUR` 环境变量。
+- **SenseVoice 路径无真实时间戳**：该引擎不返回时间信息，时长按语速估算，字幕时间轴仅供参考——**要精确字幕请用 faster-whisper**。
 - **分析需 LLM key**：--summary/--analyze 需 LLM_API_KEY；未配置时只转写不分析（明确降级不报错）。
 
