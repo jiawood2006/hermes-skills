@@ -64,10 +64,18 @@ def check_skill(skill_dir, name):
     elif len(str(desc).strip()) < 20:
         errors.append(f"{name}: description 过短（<20 字符），Agent 无法判断触发时机")
 
-    # 检查正文提到的相对资源路径是否存在
+    # 检查正文提到的相对资源路径是否存在（反引号写法）
     for rel in set(re.findall(r"`((?:references|scripts|assets|templates)/[\w./\-]+)`", text)):
         if not os.path.exists(os.path.join(skill_dir, rel)):
             warnings.append(f"{name}: 正文引用了不存在的文件 '{rel}'")
+
+    # 检查 Markdown 链接/图片指向的本地相对路径（坏图/坏链——awesome 收录雷）
+    for rel in set(re.findall(r"!?\[[^\]]*\]\((\.?/?(?:references|scripts|assets|templates)/[^)\s]+)\)", text)):
+        if not os.path.exists(os.path.join(skill_dir, rel)):
+            errors.append(
+                f"{name}: 坏链 '{rel}'——公开仓库的 SKILL.md 不能引用不存在的资源"
+                "（如捐赠二维码 assets/，应改为 Star/Issue 文字指引）"
+            )
 
     return errors, warnings
 
