@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "hermes-skills",
+  "version": "2.2.0",
+  "description": "中文实用 Agent 技能包：去AI味写作引擎、文档 OCR、视频转文字、电商素材工坊、记忆管理。Practical Chinese-language agent skills for real-world tasks.",
+  "author": {
+    "name": "涛哥 / jiawood2006",
+    "url": "https://github.com/jiawood2006"
+  },
+  "homepage": "https://github.com/jiawood2006/hermes-skills",
+  "repository": "https://github.com/jiawood2006/hermes-skills",
+  "license": "MIT",
+  "keywords": [
+    "chinese",
+    "writing",
+    "de-ai",
+    "humanize",
+    "ocr",
+    "video-transcription",
+    "ecommerce",
+    "product-photo",
+    "memory",
+    "agent-skills"
+  ]
+}
