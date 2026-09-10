@@ -134,14 +134,14 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 - **依赖**：`pip install Pillow numpy scipy`；AI 融合需硅基流动 key
 
 ### 5️⃣ memory-manager · 记忆健康管理
-- **中文**：Agent 记忆健康检查——统计 token 占用、找过期/冗余条目、压缩建议
-- **English**: Agent memory health check — token cost, stale entries, compaction tips
+- **中文**：Agent 记忆健康检查——统计 token 占用、找过期/冗余条目、**会话库表级体检**（区分"正文大"还是"索引大"）、**从会话历史挖掘用户纠正**（提示哪些长期偏好还没进记忆）
+- **English**: Agent memory health check — token cost, stale entries, **table-level session-DB diagnosis**, and **correction mining** from chat history
 - **适用**：任何 Agent 的记忆维护，防止上下文被挤占
 - **依赖**：**零依赖**（纯 Python 标准库）
 
 ### 6️⃣ memory-graph · 长文记忆图谱
-- **中文**：四维图谱（实体网+时间线+因果链+概念库）——小说/连载写作自动提取记忆，**伏笔追踪+一致性检查**
-- **English**: Four-graph memory (entity/timeline/causality/concept) for long-form writing — auto-extract, plot-thread tracking & consistency check
+- **中文**：四维图谱（实体网+时间线+因果链+概念库）——小说/连载写作自动提取记忆，**多跳关系展开**+**伏笔追踪**+一致性检查+**旧设定弃用/恢复**（改稿不删设定）
+- **English**: Four-graph memory (entity/timeline/causality/concept) for long-form writing — **multi-hop queries**, plot-thread tracking, consistency checks, and **retire/revive for revised canon**
 - **适用**：小说、连载、剧本、系列教程、世界观设定管理
 - **依赖**：提取需 LLM key（`--no-llm` 规则模式可用）
 
@@ -206,6 +206,7 @@ cp -r skills/* ~/.hermes/skills/utilities/
 
 | 日期 | 对标对象 | 本轮采纳 |
 |:--|:--|:--|
+| 2026-09-10 (3) | [cognee ★31k](https://github.com/topoteretes/cognee) · [microsoft/graphrag ★36k](https://github.com/microsoft/graphrag) · [HippoRAG ★4k](https://github.com/OSU-NLP-Group/HippoRAG) · [claude-reflect ★1.4k](https://github.com/BayramAnnakov/claude-reflect) | **memory-graph**：新增旧设定弃用/恢复（`retire`/`revive`，改稿不删设定）、多跳关系展开（`query --hops`）、弃用仍被引用检查；**memory-manager**：新增从会话历史挖掘纠正（`--corrections`）、会话库表级体检（实测发现 1.2GB 里 71% 是 FTS 索引） |
 | 2026-09-10 (2) | [PaddleOCR ★89k](https://github.com/PaddlePaddle/PaddleOCR) · [Umi-OCR ★47k](https://github.com/hiroi-sora/Umi-OCR) · [OCRmyPDF ★35k](https://github.com/ocrmypdf/OCRmyPDF) · [jiji262/douyin-downloader ★9.8k](https://github.com/jiji262/douyin-downloader) | **doc-ocr**：新增页眉页脚水印过滤（`--ignore-region`）、可搜索 PDF（`--searchable-pdf`）、多语言 `--lang`；**video-to-text**：新增 SRT/VTT 字幕导出、词级时间戳按句切分、中文默认简体+标点 |
 | 2026-09-10 | [blader/humanizer](https://github.com/blader/humanizer) ★46k | de-ai-writer 模式清单 **8 类 → 35 条**（补公文套话/互联网黑话/排比口号体/"随着…的发展"等 10 条中文特有腔调）；引入"单条不算证据"判定纪律与"保留人味细节"清单；上线 Claude 插件分发 |
 
@@ -213,6 +214,7 @@ cp -r skills/* ~/.hermes/skills/utilities/
 
 ## 📝 更新日志 / Changelog
 
+- **2026-09-10** — **第三轮对标**（cognee / graphrag / HippoRAG / claude-reflect）：memory-graph **v1.1.0** 新增旧设定弃用恢复 + 多跳关系展开；memory-manager **v1.1.0** 新增从会话历史挖掘纠正 + 会话库表级体检（实测 1.2GB 中 71% 是 FTS 索引）；对标档案 `docs/benchmarks/2026-09-10-memory-graph-and-memory-manager.md`
 - **2026-09-10** — **第二轮对标**（PaddleOCR / Umi-OCR / OCRmyPDF / douyin-downloader）：doc-ocr **v2.1.0** 新增页眉页脚水印过滤 + 可搜索 PDF + 多语言；video-to-text **v3.1.0** 新增 SRT/VTT 字幕导出 + 词级时间戳按句切分 + 中文默认简体带标点；对标档案 `docs/benchmarks/2026-09-10-video-to-text-and-doc-ocr.md`
 - **2026-09-10** — de-ai-writer **v2.2.0**：新增 35 条中文 AI 腔模式清单（`references/ai-patterns-zh.md`）+ 30 秒快检表 + 推荐工作流；仓库新增 **Claude Code 插件市场**安装方式（`.claude-plugin/`）；新增**技能校验脚本** `scripts/validate_skills.py`；建立**持续对标机制**与 `docs/benchmarks/`
 - **2026-09-08** — voice-persona 收录进 buildwithclaude 技能列表（PR #311 已合并）
