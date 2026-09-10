@@ -93,16 +93,99 @@ def extract_audio(video_path: str) -> str:
     return audio
 
 
-def transcribe_faster_whisper(audio: str) -> list:
-    """faster-whisper 本地转写 → [(start_sec, text)]"""
+def _pack_words(words) -> list:
+    """词级时间戳 → 字幕条。按标点/字数/时长打包，避免一条字幕横跨十几秒。
+
+    words: [(start, end, text)] → [(start, end, text)]
+    """
+    import re as _re
+    max_chars = int(os.environ.get("VTT_MAX_CHARS", "18"))
+    max_dur = float(os.environ.get("VTT_MAX_DUR", "7"))
+    cues, cur = [], []
+
+    def flush():
+        if cur:
+            txt = "".join(w[2] for w in cur).strip()
+            if txt:
+                cues.append((cur[0][0], cur[-1][1], txt))
+            cur.clear()
+
+    for w in words:
+        cur.append(w)
+        txt = "".join(x[2] for x in cur).strip()
+        dur = cur[-1][1] - cur[0][0]
+        ends = bool(_re.search(r"[。！？!?；;]$", txt))
+        if ends or len(txt) >= max_chars or dur >= max_dur:
+            flush()
+    flush()
+    return cues
+
+
+def _split_by_chars(seg) -> list:
+    """无词级时间戳时的兜底：按字符数等比切分（时间按占比分配）。"""
+    s, e, t = seg
+    max_chars = int(os.environ.get("VTT_MAX_CHARS", "18"))
+    if len(t) <= max_chars:
+        return [seg]
+    import re as _re
+    parts = [p for p in _re.split(r"(?<=[。！？!?；;，,])", t) if p.strip()]
+    # 再把超长片段按字数切块
+    chunks = []
+    for p in parts:
+        while len(p) > max_chars:
+            chunks.append(p[:max_chars]); p = p[max_chars:]
+        if p.strip():
+            chunks.append(p)
+    if not chunks:
+        return [seg]
+    total = sum(len(c) for c in chunks) or 1
+    span = e - s
+    out, acc = [], 0
+    for c in chunks:
+        cs = s + span * acc / total
+        acc += len(c)
+        ce = s + span * acc / total
+        out.append((cs, ce, c.strip()))
+    return out
+
+
+def transcribe_faster_whisper(audio: str, lang: str = "zh") -> list:
+    """faster-whisper 本地转写 → [(start_sec, end_sec, text)]
+
+    - 中文默认注入 initial_prompt 引导输出**简体中文 + 标点**
+      （否则 whisper 常输出繁体、且几乎不加标点——实测踩过的坑）
+    - 开启词级时间戳并按句打包，字幕不会一条横跨十几秒
+    """
     try:
         from faster_whisper import WhisperModel
     except ImportError:
         raise SystemExit("❌ 需要 faster-whisper: pip install faster-whisper")
     print("⏳ 本地转写（faster-whisper，首次会下载模型）...", file=sys.stderr)
     model = WhisperModel(os.environ.get("WHISPER_MODEL", "tiny"), device="cpu", compute_type="int8")
-    segments, info = model.transcribe(audio, language="zh", beam_size=3, vad_filter=True)
-    return [(float(s.start), s.text.strip()) for s in segments if s.text.strip()]
+    kwargs = dict(language=lang, beam_size=3, vad_filter=True, word_timestamps=True)
+    if lang.startswith("zh"):
+        prompt = os.environ.get("WHISPER_INITIAL_PROMPT", "以下是普通话的句子，请输出简体中文并加标点。")
+        if prompt:
+            kwargs["initial_prompt"] = prompt
+    try:
+        segments, info = model.transcribe(audio, **kwargs)
+    except TypeError:
+        kwargs.pop("word_timestamps", None)          # 老版本不支持则退回
+        segments, info = model.transcribe(audio, **kwargs)
+
+    out = []
+    for s in segments:
+        txt = (s.text or "").strip()
+        if not txt:
+            continue
+        words = getattr(s, "words", None)
+        if words:
+            packed = _pack_words([(float(w.start), float(w.end), w.word) for w in words])
+            if packed:
+                out.extend(packed)
+                continue
+        out.extend(_split_by_chars((float(s.start), float(s.end), txt)))
+    return [c for c in out if c[2]]
 
 
 def transcribe_sensevoice(audio: str) -> list:
@@ -135,28 +218,79 @@ def transcribe_sensevoice(audio: str) -> list:
     text = (data.get("text") or "").strip()
     if not text:
         raise RuntimeError("SenseVoice 返回空")
-    # SenseVoice 返回无时间戳 → 整体当一段
-    return [(0, text)]
+    # SenseVoice 返回无时间戳 → 整体当一段；按中文语速 ~4.5 字/秒 估时长
+    return [(0.0, max(3.0, len(text) / 4.5), text)]
 
 
-def transcribe(video_path: str, engine: str = "faster-whisper") -> list:
-    """视频 → [(start_sec, text)]。engine: faster-whisper | sensevoice"""
+def transcribe(video_path: str, engine: str = "faster-whisper", lang: str = "zh") -> list:
+    """视频 → [(start_sec, end_sec, text)]。engine: faster-whisper | sensevoice"""
     audio = extract_audio(video_path)
     if engine == "sensevoice":
         try:
             return transcribe_sensevoice(audio)
         except Exception as e:
             print(f"⚠️ SenseVoice 失败（{e}）→ 回退 faster-whisper 本地转写", file=sys.stderr)
-    return transcribe_faster_whisper(audio)
+    return transcribe_faster_whisper(audio, lang=lang)
 
 
 def fmt_ts(sec: float) -> str:
     return f"[{int(sec)//60:02d}:{int(sec)%60:02d}]"
 
 
+def _norm_segments(segments: list) -> list:
+    """兼容 [(sec,text)] 与 [(start,end,text)] 两种入参 → [(start,end,text)]。"""
+    out = []
+    for seg in segments:
+        if len(seg) == 3:
+            s, e, t = seg
+        else:
+            s, t = seg
+            e = None
+        s = float(s)
+        e = float(e) if e is not None else s + max(1.5, len(str(t)) / 4.5)
+        if e <= s:
+            e = s + 1.5
+        out.append((s, e, str(t)))
+    return out
+
+
+def _sub_ts(sec: float, sep: str = ",") -> str:
+    """秒 → 字幕时间戳 HH:MM:SS,mmm（VTT 用 '.'）。"""
+    if sec < 0:
+        sec = 0
+    h = int(sec // 3600)
+    m = int((sec % 3600) // 60)
+    s = int(sec % 60)
+    ms = int(round((sec - int(sec)) * 1000))
+    if ms == 1000:
+        ms, s = 0, s + 1
+    return f"{h:02d}:{m:02d}:{s:02d}{sep}{ms:03d}"
+
+
+def to_srt(segments: list) -> str:
+    """→ SRT 字幕文本（可导入剪映/Premiere/YouTube）。"""
+    lines = []
+    for i, (s, e, t) in enumerate(_norm_segments(segments), 1):
+        lines += [str(i), f"{_sub_ts(s)} --> {_sub_ts(e)}", t, ""]
+    return "\n".join(lines)
+
+
+def to_vtt(segments: list) -> str:
+    """→ WebVTT 字幕文本（网页 <track> / 播放器通用）。"""
+    lines = ["WEBVTT", ""]
+    for s, e, t in _norm_segments(segments):
+        lines += [f"{_sub_ts(s, '.')} --> {_sub_ts(e, '.')}", t, ""]
+    return "\n".join(lines)
+
+
 # ─────────────────────────── 输出 ───────────────────────────
-def write_output(meta: dict, segments: list, out_dir: str, fmt: str = "md"):
-    """meta: {platform,url,title,author,...}; segments: [(sec,text)] → 写文件"""
+def write_output(meta: dict, segments: list, out_dir: str, fmt: str = "md", subtitles=None):
+    """meta: {platform,url,title,author,...}; segments: [(start,end,text)]
+
+    fmt: md | txt | srt | vtt（srt/vtt 只写字幕文件）
+    subtitles: 额外字幕格式集合，如 {"srt"} —— 在 md/txt 之外一并输出
+    """
+    segments = _norm_segments(segments)
     if not meta.get("title"):
         meta["title"] = meta.get("_file_stem", "video")
     safe = re.sub(r'[\\/:*?"<>|\s]+', "_", str(meta["title"]))[:60] or "video"
@@ -164,13 +298,18 @@ def write_output(meta: dict, segments: list, out_dir: str, fmt: str = "md"):
         os.makedirs(out_dir, exist_ok=True)
     base = os.path.join(out_dir, safe + "_transcript")
 
-    body_lines = []
-    # 相同时间戳段合并（SenseVoice 单段）
-    for sec, text in segments:
-        body_lines.append(f"{fmt_ts(sec)} {text}")
+    body_lines = [f"{fmt_ts(s)} {t}" for s, _e, t in segments]
 
     ts = datetime.datetime.now().strftime("%Y-%m-%d")
     meta["date"] = ts
+
+    # ── 纯字幕输出 ──
+    if fmt in ("srt", "vtt"):
+        path = base + "." + fmt
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(to_srt(segments) if fmt == "srt" else to_vtt(segments))
+        print(f"✅ 字幕已保存: {path}（{len(segments)} 条）", file=sys.stderr)
+        return path
 
     if fmt == "txt":
         path = base + ".txt"
@@ -192,7 +331,18 @@ def write_output(meta: dict, segments: list, out_dir: str, fmt: str = "md"):
              ["", "## 转写全文", ""] + body_lines
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(md))
-    print(f"✅ 转写已保存: {path}（{len(segments)} 段 / {sum(len(s) for _, s in segments)} 字）", file=sys.stderr)
+
+    # ── 附加字幕文件 ──
+    extra = []
+    for want in (subtitles or []):
+        sp = base + "." + want
+        with open(sp, "w", encoding="utf-8") as f:
+            f.write(to_srt(segments) if want == "srt" else to_vtt(segments))
+        extra.append(sp)
+
+    print(f"✅ 转写已保存: {path}（{len(segments)} 段 / {sum(len(t) for _, _, t in segments)} 字）", file=sys.stderr)
+    for sp in extra:
+        print(f"✅ 字幕已保存: {sp}", file=sys.stderr)
     return path
 
 
@@ -217,14 +367,22 @@ def main():
     ap.add_argument("--no-transcribe", action="store_true", help="下载视频但跳过转写（只存文件）")
     ap.add_argument("--engine", choices=["faster-whisper", "sensevoice"], default="faster-whisper",
                     help="转写引擎（默认本地 faster-whisper）")
+    ap.add_argument("--asr-lang", default="zh",
+                    help="转写语言代码（缺省 zh；en/ja/ko 等）")
     ap.add_argument("--summary", action="store_true", help="转写后生成内容摘要（需 LLM key）")
     ap.add_argument("--analyze", action="store_true", help="转写后爆款结构拆解（需 LLM key）")
-    ap.add_argument("--format", choices=["md", "txt"], default="md", help="输出格式")
+    ap.add_argument("--format", choices=["md", "txt", "srt", "vtt"], default="md",
+                    help="输出格式（md/txt=文字稿；srt/vtt=字幕文件）")
+    ap.add_argument("--subtitles", default="",
+                    help="额外输出字幕文件，如 srt 或 srt,vtt（与 md/txt 文字稿一并生成）")
     ap.add_argument("--out-dir", default="", help="输出目录（默认当前目录）")
     args = ap.parse_args()
 
     out_dir = args.out_dir or os.getcwd()
+    subs = [x.strip().lower() for x in args.subtitles.split(",") if x.strip() in ("srt", "vtt")]
     analysis_mode = "all" if (args.summary and args.analyze) else ("summary" if args.summary else ("analyze" if args.analyze else None))
+    if args.format in ("srt", "vtt"):
+        analysis_mode = None      # 字幕模式下不做文字分析
 
     # ── 链接模式 ──
     if is_url(args.input):
@@ -260,8 +418,8 @@ def main():
         if args.no_transcribe:
             print(f"✅ 视频已保存（跳过转写）: {video_path}", file=sys.stderr)
             return
-        segments = transcribe(video_path, engine=args.engine)
-        transcript_path = write_output(meta, segments, out_dir, args.format)
+        segments = transcribe(video_path, engine=args.engine, lang=args.asr_lang)
+        transcript_path = write_output(meta, segments, out_dir, args.format, subtitles=subs)
         if analysis_mode:
             print(f"\n🔎 内容情报分析（{analysis_mode}）...", file=sys.stderr)
             run_analysis(transcript_path, analysis_mode)
@@ -271,10 +429,10 @@ def main():
     if not os.path.exists(args.input):
         raise SystemExit(f"❌ 文件不存在: {args.input}")
     print("🎬 本地视频，提取语音转文字...", file=sys.stderr)
-    segments = transcribe(args.input, engine=args.engine)
+    segments = transcribe(args.input, engine=args.engine, lang=args.asr_lang)
     meta = {"platform": "local", "title": os.path.splitext(os.path.basename(args.input))[0],
             "author": "", "_file_stem": os.path.splitext(os.path.basename(args.input))[0]}
-    transcript_path = write_output(meta, segments, out_dir, args.format)
+    transcript_path = write_output(meta, segments, out_dir, args.format, subtitles=subs)
     if analysis_mode:
         print(f"\n🔎 内容情报分析（{analysis_mode}）...", file=sys.stderr)
         run_analysis(transcript_path, analysis_mode)
