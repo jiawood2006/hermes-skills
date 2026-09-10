@@ -108,9 +108,10 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 ## 📦 技能清单 / Skill List
 
 ### 1️⃣ video-to-text · 抖音视频一键转文字
-- **中文**：**抖音分享链接 → 自动下载 → 本地转写**（一条命令闭环）+ 结构化 Markdown + 内容摘要/爆款结构拆解
-- **English**: **Douyin link → auto-download → transcribe in ONE command** + structured Markdown + viral analysis
-- **适用**：短视频文案采集、内容情报、爆款拆解
+- **中文**：**抖音分享链接 → 自动下载 → 本地转写**（一条命令闭环）+ 结构化 Markdown + **SRT/VTT 字幕**（带真实时间戳）+ 内容摘要/爆款结构拆解
+- **English**: **Douyin link → auto-download → transcribe in ONE command** + structured Markdown + **SRT/VTT subtitles** + viral analysis
+- **中文优化**：默认输出**简体中文 + 标点**，字幕**按句切分**（不会一条横跨十几秒）
+- **适用**：短视频文案采集、内容情报、爆款拆解、**给视频配字幕**
 - **依赖**：macOS/Linux；转写需 `pip3 install faster-whisper`（可选 SenseVoice 更准）；分析需 LLM key
 
 ### 2️⃣ de-ai-writer · 中文去 AI 味写作引擎
@@ -121,9 +122,9 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 - **与英文 humanizer 的区别**：中文 AI 味 ≠ 英文 AI 味——英文看 delve / em-dash，中文看"赋能/闭环/公文套话/翻译腔"。我们有 10 条中文特有腔调，另有本地规则引擎，可进脚本流水线
 
 ### 3️⃣ doc-ocr · 文档识别 + 结构化
-- **中文**：PDF/扫描件/图片 OCR + **发票/合同字段抽取 + 表格转 CSV**
-- **English**: OCR for PDFs/scans/images + structured field extraction (invoices/contracts/tables)
-- **适用**：合同扫描、发票归档、票据数字化
+- **中文**：PDF/扫描件/图片 OCR + **可搜索 PDF**（扫描件写隐形文字层，可 Ctrl+F/复制）+ **页眉页脚水印过滤** + **发票/合同字段抽取 + 表格转 CSV**
+- **English**: OCR for PDFs/scans/images + **searchable-PDF output** + **header/footer/watermark filtering** + structured extraction (invoices/contracts/tables)
+- **适用**：合同扫描、发票归档、票据数字化、**扫描件做成可检索档案**
 - **依赖**：**macOS**（Vision 引擎）；结构化需 LLM key
 
 ### 4️⃣ ecommerce-material-studio · 电商素材工坊
@@ -205,12 +206,14 @@ cp -r skills/* ~/.hermes/skills/utilities/
 
 | 日期 | 对标对象 | 本轮采纳 |
 |:--|:--|:--|
+| 2026-09-10 (2) | [PaddleOCR ★89k](https://github.com/PaddlePaddle/PaddleOCR) · [Umi-OCR ★47k](https://github.com/hiroi-sora/Umi-OCR) · [OCRmyPDF ★35k](https://github.com/ocrmypdf/OCRmyPDF) · [jiji262/douyin-downloader ★9.8k](https://github.com/jiji262/douyin-downloader) | **doc-ocr**：新增页眉页脚水印过滤（`--ignore-region`）、可搜索 PDF（`--searchable-pdf`）、多语言 `--lang`；**video-to-text**：新增 SRT/VTT 字幕导出、词级时间戳按句切分、中文默认简体+标点 |
 | 2026-09-10 | [blader/humanizer](https://github.com/blader/humanizer) ★46k | de-ai-writer 模式清单 **8 类 → 35 条**（补公文套话/互联网黑话/排比口号体/"随着…的发展"等 10 条中文特有腔调）；引入"单条不算证据"判定纪律与"保留人味细节"清单；上线 Claude 插件分发 |
 
 > 结论一句话：★ 差距主要来自**分发渠道与受众基数**，不代表技能质量；但对方**内容深度确实强于我们**——所以本轮把内容补厚、把分发包齐。
 
 ## 📝 更新日志 / Changelog
 
+- **2026-09-10** — **第二轮对标**（PaddleOCR / Umi-OCR / OCRmyPDF / douyin-downloader）：doc-ocr **v2.1.0** 新增页眉页脚水印过滤 + 可搜索 PDF + 多语言；video-to-text **v3.1.0** 新增 SRT/VTT 字幕导出 + 词级时间戳按句切分 + 中文默认简体带标点；对标档案 `docs/benchmarks/2026-09-10-video-to-text-and-doc-ocr.md`
 - **2026-09-10** — de-ai-writer **v2.2.0**：新增 35 条中文 AI 腔模式清单（`references/ai-patterns-zh.md`）+ 30 秒快检表 + 推荐工作流；仓库新增 **Claude Code 插件市场**安装方式（`.claude-plugin/`）；新增**技能校验脚本** `scripts/validate_skills.py`；建立**持续对标机制**与 `docs/benchmarks/`
 - **2026-09-08** — voice-persona 收录进 buildwithclaude 技能列表（PR #311 已合并）
 - **2026-09-06** — README 增加 featured-in 徽章（提升搜索可发现性）
