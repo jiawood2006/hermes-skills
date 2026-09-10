@@ -181,38 +181,133 @@ def ingest(graph, text, ch, manual_entities, use_llm=True):
 # 查询
 # ═══════════════════════════════════════════════════════════
 
-def query_entity(graph, name):
+def _resolve(graph, name):
+    """名字/别名 → 实体 id；找不到返回 None。"""
     name = norm_name(name)
-    if name not in graph["entities"]:
-        # 查别名
-        for eid, e in graph["entities"].items():
-            if name in e.get("aliases", []):
-                name = eid
-                break
+    if not name:
+        return None
+    if name in graph["entities"]:
+        return name
+    for eid, e in graph["entities"].items():
+        if name in e.get("aliases", []):
+            return eid
+    return None
+
+
+def _print_hops(graph, start, hops):
+    """多跳展开：从 start 出发 BFS，逐跳打印可达实体（对标 HippoRAG 的 multi-hop 检索）。"""
+    seen = {start}
+    frontier = [start]
+    for depth in range(1, hops + 1):
+        nxt = []
+        lines = []
+        for src in frontier:
+            e = graph["entities"].get(src)
+            if not e:
+                continue
+            for r in e["relations"]:
+                tgt = r["to"]
+                if tgt in seen or tgt not in graph["entities"]:
+                    continue
+                seen.add(tgt)
+                nxt.append(tgt)
+                te = graph["entities"][tgt]
+                dead = "（已弃用）" if te.get("status") == "retired" else ""
+                note = f" — {r['note']}" if r.get("note") else ""
+                lines.append(f"   {src} --{r['type']}--> {tgt}{dead}{note}")
+            # 反向边也算一跳（关系网的完整可达性）
+            for other, oe in graph["entities"].items():
+                if other in seen:
+                    continue
+                for r in oe["relations"]:
+                    if r["to"] == src:
+                        seen.add(other)
+                        nxt.append(other)
+                        dead = "（已弃用）" if oe.get("status") == "retired" else ""
+                        lines.append(f"   {other} --{r['type']}--> {src}{dead}")
+                        break
+        if lines:
+            print(f"   🔗 第 {depth} 跳（{len(lines)} 条）:")
+            for ln in lines[:20]:
+                print(ln)
+            if len(lines) > 20:
+                print(f"   … 另有 {len(lines)-20} 条")
         else:
-            print(f"❌ 未找到实体: {name}")
-            return
-    e = graph["entities"][name]
-    print(f"📌 {e['name']}（{TYPES.get(e['type'], e['type'])}）")
+            print(f"   🔗 第 {depth} 跳: 无新实体")
+            break
+        frontier = nxt
+        if not frontier:
+            break
+
+
+def query_entity(graph, name, hops=1):
+    eid = _resolve(graph, name)
+    if not eid:
+        print(f"❌ 未找到实体: {norm_name(name)}")
+        return
+    e = graph["entities"][eid]
+    flag = "   ⛔ 已弃用" if e.get("status") == "retired" else ""
+    print(f"📌 {e['name']}（{TYPES.get(e['type'], e['type'])}）{flag}")
     print(f"   别名: {', '.join(e['aliases']) or '无'} | 首次出现: 第{e['first_seen']}处 | 状态: {e['status']}")
+    if e.get("retired_reason"):
+        print(f"   弃用原因: {e['retired_reason']}（第{e.get('retired_ch', 0)}处）")
     if e["tags"]:
         print(f"   属性: {json.dumps(e['tags'], ensure_ascii=False)}")
     print("   关系:")
     for r in e["relations"]:
         note = f"（{r['note']}）" if r.get("note") else ""
-        print(f"     - {r['type']} → {r['to']}{note}")
+        dead = "  ⛔" if graph["entities"].get(r["to"], {}).get("status") == "retired" else ""
+        print(f"     - {r['type']} → {r['to']}{dead}{note}")
     # 反向关系
-    rev = [(k, v) for k, v in graph["entities"].items() if any(r["to"] == name for r in v["relations"])]
+    rev = [(k, v) for k, v in graph["entities"].items() if any(r["to"] == eid for r in v["relations"])]
     for k, v in rev[:10]:
         for r in v["relations"]:
-            if r["to"] == name:
+            if r["to"] == eid:
                 print(f"     - {k} {r['type']} 了 TA")
     # 相关事件
-    evs = [t for t in graph["timeline"] if name in t.get("entities", [])]
+    evs = [t for t in graph["timeline"] if eid in t.get("entities", [])]
     if evs:
         print(f"   相关事件 ({len(evs)}):")
         for t in evs[-5:]:
             print(f"     [{t['time']}] {t['event'][:60]}")
+    # 多跳展开
+    if hops > 1:
+        print(f"   ── 多跳展开（{hops} 跳）──")
+        _print_hops(graph, eid, hops)
+
+
+def retire_entity(graph, name, reason="", ch=0, revive=False):
+    """弃用/恢复实体（对标 Cognee 的 forget()）。
+
+    改稿后旧设定不能直接删（历史章节引用过），而是标记失效：
+    一致性检查会跳过它，查询时明确标注，历史信息仍保留。
+    """
+    eid = _resolve(graph, name)
+    if not eid:
+        print(f"❌ 未找到实体: {norm_name(name)}")
+        return False
+    e = graph["entities"][eid]
+    if revive:
+        if e.get("status") != "retired":
+            print(f"ℹ️ 「{eid}」本来就是 active，无需恢复")
+            return False
+        e["status"] = "active"
+        e.pop("retired_reason", None)
+        e.pop("retired_ch", None)
+        print(f"♻️ 已恢复「{eid}」为 active")
+    else:
+        if e.get("status") == "retired":
+            print(f"ℹ️ 「{eid}」已是 retired")
+            return False
+        e["status"] = "retired"
+        if reason:
+            e["retired_reason"] = reason
+        if ch:
+            e["retired_ch"] = ch
+        print(f"⛔ 已弃用「{eid}」" + (f"：{reason}" if reason else "")
+              + "（一致性检查将跳过；历史关系与事件保留）")
+    return True
+
 
 def show_timeline(graph, limit=30):
     if not graph["timeline"]:
@@ -234,6 +329,9 @@ def show_status(graph):
     print(f"   事件: {len(graph['timeline'])} 条")
     print(f"   因果链: {len(graph['causal'])} 条")
     print(f"   概念: {len(graph['semantic'])} 个")
+    retired = [k for k, e in ents.items() if e.get("status") == "retired"]
+    if retired:
+        print(f"   ⛔ 已弃用: {len(retired)} 个（{', '.join(retired[:8])}{'...' if len(retired) > 8 else ''}）")
     print(f"\n   实体列表: {', '.join(sorted(ents.keys())[:25])}{'...' if len(ents)>25 else ''}")
 
 def check_consistency(graph):
@@ -254,10 +352,21 @@ def check_consistency(graph):
     # 3. 同名冲突（实体别名冲突——简化：不同实体同名）
     names = {}
     for eid, e in graph["entities"].items():
+        if e.get("status") == "retired":      # 已弃用实体不参与冲突判定
+            continue
         for a in e.get("aliases", []):
             if a in names and names[a] != eid:
                 issues.append(f"⚠️ 别名冲突: 「{a}」同时指向 {names[a]} 和 {eid}")
             names[a] = eid
+    # 4. 已弃用实体仍被引用（改稿后遗留——提醒确认是否要一并处理）
+    for eid, e in graph["entities"].items():
+        if e.get("status") == "retired":
+            users = [k for k, v in graph["entities"].items()
+                     if k != eid and v.get("status") != "retired"
+                     and any(r["to"] == eid for r in v["relations"])]
+            if users:
+                issues.append(f"⛔ 已弃用实体「{eid}」仍被引用: {', '.join(users[:5])}"
+                              f"{'...' if len(users) > 5 else ''}（确认是否需改稿或恢复）")
     if not issues:
         print("✅ 一致性检查通过，未发现问题")
     else:
@@ -285,6 +394,18 @@ def main():
     p_q = sub.add_parser("query", help="查询实体")
     p_q.add_argument("name")
     p_q.add_argument("--dir", default="./memory_graph_data")
+    p_q.add_argument("--hops", type=int, default=1,
+                     help="多跳展开层数（2=看朋友的朋友，对标多跳检索）")
+
+    p_ret = sub.add_parser("retire", help="弃用实体（改稿后旧设定，不删除只标记失效）")
+    p_ret.add_argument("name")
+    p_ret.add_argument("--reason", default="", help="弃用原因（强烈建议填写）")
+    p_ret.add_argument("--ch", type=int, default=0, help="从哪一处/章开始弃用")
+    p_ret.add_argument("--dir", default="./memory_graph_data")
+
+    p_rev = sub.add_parser("revive", help="恢复被弃用的实体")
+    p_rev.add_argument("name")
+    p_rev.add_argument("--dir", default="./memory_graph_data")
 
     p_tl = sub.add_parser("timeline", help="事件时间线")
     p_tl.add_argument("--dir", default="./memory_graph_data")
@@ -319,7 +440,13 @@ def main():
         save_graph(args.dir, graph)
         print(f"✅ 已摄入「{os.path.basename(args.file)}」→ 新增实体{added['entities']} 关系{added['relations']} 事件{added['events']} 因果{added['causal']} 概念{added['concepts']}")
     elif args.cmd == "query":
-        query_entity(graph, args.name)
+        query_entity(graph, args.name, hops=max(1, args.hops))
+    elif args.cmd == "retire":
+        if retire_entity(graph, args.name, reason=args.reason, ch=args.ch):
+            save_graph(args.dir, graph)
+    elif args.cmd == "revive":
+        if retire_entity(graph, args.name, revive=True):
+            save_graph(args.dir, graph)
     elif args.cmd == "timeline":
         show_timeline(graph)
     elif args.cmd == "status":
