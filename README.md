@@ -2,7 +2,7 @@
 
 > **你的 Agent 很聪明，但它搞不定中文世界的活儿。**
 > 抖音文案要手抄？扫描合同要肉眼敲？AI 写的稿子一股机器味？电商主图一张张 P？
-> 这里就是给 Agent 装的 **中文生存技能包**——7 个开箱即用的实用技能，免费开源，复制即用。
+> 这里就是给 Agent 装的 **中文生存技能包**——8 个开箱即用的实用技能，免费开源，复制即用。
 >
 > *Your agent is smart — but useless on Chinese real-world tasks. Douyin video→text, Chinese OCR, de-AI writing, e-commerce images. This is its Chinese survival kit.*
 
@@ -15,18 +15,6 @@
 
 **⭐ 觉得有用？点个 Star 支持一下 → [⭐ Star this repo](https://github.com/jiawood2006/hermes-skills/stargazers) — 你的支持是开源的动力！**
 **⭐ If you find this useful, please Star it — it keeps the project alive!**
-
----
-
-## 🏆 已被收录 / Featured in
-
-这些技能已通过审核，收录进以下 Agent 技能目录（搜索即可找到）：
-
-- ✅ [davepoon/buildwithclaude](https://github.com/davepoon/buildwithclaude)（Claude Skills 目录 · 3.4k★）— doc-ocr / video-to-text / de-ai-writer / ecommerce-material-studio / project-milestone-tracker / voice-persona（2026-09-08 merged #311）
-- ✅ [0xNyk/awesome-hermes-agent](https://github.com/0xNyk/awesome-hermes-agent)（Hermes Agent 技能目录 · 5.5k★）
-- ✅ agentskills.io / DeepSeek Harness 插件生态（dsh-plugin topic 自动同步）
-
-*收录目录自带搜索流量，用户在这些市场搜索即可发现本仓库技能。*
 
 ---
 
@@ -126,10 +114,11 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 - **依赖**：macOS/Linux；转写需 `pip3 install faster-whisper`（可选 SenseVoice 更准）；分析需 LLM key
 
 ### 2️⃣ de-ai-writer · 中文去 AI 味写作引擎
-- **中文**：去 AI 味 + **免key demo 演示** + 风格克隆 + 变体生成 + 语气调节 + 8 维度评分
-- **English**: De-AI + **no-key demo** + style cloning + variants + tone control + quality scoring
+- **中文**：**AI味体检**（免key）+ 去 AI 味 + **35 条中文 AI 腔模式清单** + 风格克隆 + 变体生成 + 语气调节 + 8 维度评分
+- **English**: **AI-smell check** (no key) + de-AI + **35-pattern Chinese AI-smell catalog** + style cloning + variants + tone control + quality scoring
 - **适用**：公众号、小红书、电商文案、小说文风模仿
-- **依赖**：demo 模式**零依赖免 key**；深度改写需 LLM key（`--prompt-only` 零成本模式也可用）
+- **依赖**：check / demo 模式**零依赖免 key**；深度改写需 LLM key（`--prompt-only` 零成本模式也可用）
+- **与英文 humanizer 的区别**：中文 AI 味 ≠ 英文 AI 味——英文看 delve / em-dash，中文看"赋能/闭环/公文套话/翻译腔"。我们有 10 条中文特有腔调，另有本地规则引擎，可进脚本流水线
 
 ### 3️⃣ doc-ocr · 文档识别 + 结构化
 - **中文**：PDF/扫描件/图片 OCR + **发票/合同字段抽取 + 表格转 CSV**
@@ -161,6 +150,12 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 - **适用**：工程公司老板/项目经理的项目管理助手
 - **依赖**：需在服务器部署（腾讯云/任意 Linux），配企业微信机器人
 
+### 8️⃣ voice-persona · 语音人格（IM 语音双工）
+- **中文**：IM 里的**语音闭环**——微信语音（silk）解码转写 + 6 种人格化回复 + EdgeTTS 零成本合成，让 Agent 能听会说、还有性格
+- **English**: Voice I/O loop for IM agents — decode WeChat silk voice, transcribe, reply in 6 personas, synthesize with EdgeTTS (zero cost)
+- **适用**：微信/企微机器人语音交互、客服人格化、语音助手
+- **依赖**：`pilk`（silk 解码）+ `faster-whisper`（转写）；TTS 用 EdgeTTS 免 key
+
 ---
 
 ## 🚀 安装 / Installation
@@ -168,18 +163,22 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 **支持任何 Agent / host**——SKILL.md 遵循 agentskills.io 开放标准（Claude Code / Codex / Cursor / Gemini CLI / OpenCode / Hermes / npx skills…）：
 
 ```bash
-# 方式一：一键安装脚本（装全部 + 全局命令 deai-demo/vtt/dococr/v2t 等）
-git clone https://github.com/jiawood2006/hermes-skills.git
-cd hermes-skills && ./install.sh
+# 方式一：Claude Code 插件市场（一条命令，自动更新）
+/plugin marketplace add jiawood2006/hermes-skills
+/plugin install hermes-skills@hermes-skills
 
 # 方式二：skills CLI（支持 50+ Agent 生态: Claude Code/Codex/Cursor…）
 npx skills add jiawood2006/hermes-skills --global     # 装全部
 npx skills add jiawood2006/hermes-skills/skills/video-to-text -g   # 装单个
 
-# 方式三：Claude Code / 任意 Agent（手动复制到技能目录）
+# 方式三：一键安装脚本（装全部 + 全局命令 deai-demo/vtt/dococr/v2t 等）
+git clone https://github.com/jiawood2006/hermes-skills.git
+cd hermes-skills && ./install.sh
+
+# 方式四：任意 Agent（手动复制到技能目录）
 mkdir -p ~/.claude/skills && cp -r skills/* ~/.claude/skills/
 
-# 方式四：Hermes 官方命令（自动按分类安装）
+# 方式五：Hermes 官方命令（自动按分类安装）
 hermes skills install jiawood2006/hermes-skills/skills/de-ai-writer
 hermes skills install jiawood2006/hermes-skills/skills/video-to-text
 hermes skills install jiawood2006/hermes-skills/skills/doc-ocr
@@ -187,14 +186,36 @@ hermes skills install jiawood2006/hermes-skills/skills/ecommerce-material-studio
 hermes skills install jiawood2006/hermes-skills/skills/memory-manager
 hermes skills install jiawood2006/hermes-skills/skills/memory-graph
 hermes skills install jiawood2006/hermes-skills/skills/ai-project-advisor
+hermes skills install jiawood2006/hermes-skills/skills/voice-persona
 
-# 方式五：复制目录（纯手动，路径与各技能 SKILL.md 保持一致）
+# 方式六：复制目录（纯手动，路径与各技能 SKILL.md 保持一致）
 mkdir -p ~/.hermes/skills/utilities
 cp -r skills/* ~/.hermes/skills/utilities/
 ```
 
 > 💡 兼容 agentskills.io 开放标准——其他支持 Skills 的 Agent 也能用。
 > 📁 安装后脚本路径：`~/.hermes/skills/utilities/<技能名>/scripts/`（各技能 SKILL.md 内命令均基于此路径）。
+> ✅ 每次推送自动跑 [Validate Skills](.github/workflows/validate-skills.yml)——全部 SKILL.md 的 frontmatter 经 CI 校验（`python3 scripts/validate_skills.py` 可本地复跑）。
+
+---
+
+## 🔄 持续对标 / Continuous Benchmarking
+
+**上架不是终点。** 每个技能都会定期与同领域高星同类做对标分析，把可借鉴的做法落地强化——**不闭门造车**，保持先进性。对标档案（数据快照 + 逐项对比 + 采纳项 + 下次待办）全部公开在 [`docs/benchmarks/`](docs/benchmarks/)：
+
+| 日期 | 对标对象 | 本轮采纳 |
+|:--|:--|:--|
+| 2026-09-10 | [blader/humanizer](https://github.com/blader/humanizer) ★46k | de-ai-writer 模式清单 **8 类 → 35 条**（补公文套话/互联网黑话/排比口号体/"随着…的发展"等 10 条中文特有腔调）；引入"单条不算证据"判定纪律与"保留人味细节"清单；上线 Claude 插件分发 |
+
+> 结论一句话：★ 差距主要来自**分发渠道与受众基数**，不代表技能质量；但对方**内容深度确实强于我们**——所以本轮把内容补厚、把分发包齐。
+
+## 📝 更新日志 / Changelog
+
+- **2026-09-10** — de-ai-writer **v2.2.0**：新增 35 条中文 AI 腔模式清单（`references/ai-patterns-zh.md`）+ 30 秒快检表 + 推荐工作流；仓库新增 **Claude Code 插件市场**安装方式（`.claude-plugin/`）；新增 **CI 技能校验**（`scripts/validate_skills.py` + GitHub Action）；建立**持续对标机制**与 `docs/benchmarks/`
+- **2026-09-08** — voice-persona 收录进 buildwithclaude 技能列表（PR #311 已合并）
+- **2026-09-06** — README 增加 featured-in 徽章（提升搜索可发现性）
+- **2026-09-04** — 新增 **voice-persona**（第 8 个技能，微信语音双工 + 6 人格）；竞品调研驱动改造：README 故事化、跨平台安装、免 key 演示（de-ai-writer `check`/`demo`）
+- **2026-08-09** — 仓库创建，首批技能 video-to-text / de-ai-writer / doc-ocr
 
 ---
 
