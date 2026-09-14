@@ -54,7 +54,20 @@
 | 阶段8 路径收敛（半自动上传 → 投放） | SKILL.md 阶段8 | ✅ |
 | 对标归档 | 本文件 | ✅ |
 
-## 5. 下次待办
+## 5. OpenMontage 实跑发现（"真的用一遍"，不是读文档）
+
+在本机实例（`~/OpenMontage`，v2.0）实际执行注册表发现：
+
+| 实测项 | 结果 |
+|:--|:--|
+| `registry.list_all()` | **101 个工具**（视频类：kling_video / hunyuan_video / cogvideo_video / comfyui_video / heygen_video / clip_search…；音频字幕类：dashscope_tts / doubao_tts / elevenlabs_tts / piper_tts / audio_mixer…） |
+| `registry.tier_summary()` | 按 core / voice / enhance / generate / source 分层，**每层区分 available / unavailable**（如 generate: 2 可用 / 35 不可用） |
+| 流水线定义 | **声明式 YAML**（`pipeline_defs/*.yaml`，含 `clip-factory.yaml` 短片段工厂），带 `budget_default_usd` / `max_revisions_per_stage` / `max_send_backs` / `max_wall_time_minutes` / 阶段级 `review_focus` / `success_criteria` / `checkpoint_required` |
+| ⚠️ 发现的自身缺陷 | 我们 SKILL.md 里写的 `registry.get_tools_by_category("video")` **已失效**（AttributeError）→ 已修正为实测可用写法 |
+
+**借鉴结论**：我们的 `pipeline_run.py` 是硬编码流程 → 应抽成 `pipeline_defs/ecommerce-short-video.yaml`（阶段/产出物/门禁/预算/成功标准），脚本只当执行器；并加"产出前环境自检"（ffmpeg/edge-tts/字体/API key/素材），避免渲到一半失败。
+
+## 6. 下次待办
 
 - [ ] i2v 试跑：拿 1 张 HSQ1 原图跑 `wanx2.1-i2v-turbo` 5 秒，肉眼验证产品不变形；通过再纳入产品特写帧
 - [ ] 合规闸门接进 pipeline_run.py 的产出前钩子（现在是独立脚本，需手动跑）
