@@ -1,7 +1,7 @@
 # 分辨率 · 计费 · 欠费 · 生成前预检（总纲）
 
-本文合并 4 篇旧 reference（`resolution-and-cost-doctrine.md`、`wan30-firstframe-and-resolution-doctrine.md`、
-`dashscope-arrearage-triage.md`、`preflight-and-quality-gates.md`），只管三件事：
+本文合并 4 篇旧 reference（`resolution-cost-and-arrearage.md`、`resolution-cost-and-arrearage.md`、
+`resolution-cost-and-arrearage.md`、`resolution-cost-and-arrearage.md`），只管三件事：
 **花钱之前怎么预检 → 生成锁什么分辨率 → 提交全挂时怎么判断是不是欠费。**
 什么时候读它：① 用户问「测试用 720P 省钱、定稿再改 1080P 行不行？」「为什么这么贵？」；
 ② 准备提交一批分段之前（先过预检清单、先报单价）；③ 一批提交**全部**失败（尤其返回 `Arrearage`），
@@ -80,10 +80,10 @@
 **门面镜（0–3s）也不要单独上原生 1080** —— 实测会上崩产品。
 
 **❌ 已作废（2026-09-18）：为了"影棚感/更清晰"定稿改用原生 1080P 生成 → 现：一律 720P 生成，成片由装配器升到 1080×1920。**
-（旧文 `preflight-and-quality-gates.md` §三的「影棚感版」提交参数 `duration:10 / resolution:1080P / ratio:9:16 /
+（旧文 `resolution-cost-and-arrearage.md` §三的「影棚感版」提交参数 `duration:10 / resolution:1080P / ratio:9:16 /
 watermark:false / prompt_extend:false` 与"只有万相 r2v（1080P，1 元/秒）能给这种观感"一句，按此作废。）
 
-### 交叉印证：改分辨率会打坏产品（出处 `product-lock-escalation-and-resolution-pitfall.md` §1）
+### 交叉印证：改分辨率会打坏产品（出处 `product-fidelity.md` §1）
 同一角色、同一套 prompt，**只把 `parameters.resolution` 从 720P 改成 1080P**：
 
 | 项 | 720P（此前一直用） | 1080P（本次改动后） |
