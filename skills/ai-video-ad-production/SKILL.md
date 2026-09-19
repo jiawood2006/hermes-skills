@@ -80,7 +80,7 @@ python3 $S/scripts/make_ad.py <项目.json> --steps fetch,verify --seg 3 --runid
 - 直接走①，用用户自己的台词和配音。
 
 ## ① 主线配方：wan2.6-t2v
-完整参数、JSON、计费、配音托管、验片命令见 `references/wan26-t2v-dialogue-recipe.md`。
+完整参数、JSON、计费、配音托管、验片命令见 `references/scene-drama-and-candid-style.md`。
 
 要点速览：
 - `POST https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis`
@@ -128,3 +128,17 @@ python3 $S/scripts/make_ad.py <项目.json> --steps fetch,verify --seg 3 --runid
 ## 相关技能
 - `clipforge-video-pipeline`：素材拼接方案（clipforge / MoneyPrinterTurbo）的完整配方 = 路径②，
   含环境安装坑、逐镜头挂图、本地素材模式，以及 0 成本"真机动态片段库"
+
+## 📚 知识库索引（8 篇总纲）
+
+| 什么时候读 | 文档 |
+|:---|:---|
+| 产品长得不像 / 变形掉色 / 尺寸比例 / 刀网 | `references/product-fidelity.md` |
+| 选引擎 / 模型字段 / 价格 | `references/engines-and-models.md` |
+| 分辨率 / 计费 / 欠费排查 / 预检 | `references/resolution-cost-and-arrearage.md` |
+| 整机流水线 / 装配 / 交付核验 | `references/pipeline-assembly-and-qc.md` |
+| 完播率 / 钩子变体 / 投放指标 | `references/hooks-and-ad-metrics.md` |
+| 配音 / 字幕 / 音色 | `references/voice-and-subtitles.md` |
+| 肖像权 / 合规红线 / 参考图规范 | `references/compliance-portrait-and-references.md` |
+| 场景剧情片 / 真实感拍法 / 分镜措辞 | `references/scene-drama-and-candid-style.md` |
+
