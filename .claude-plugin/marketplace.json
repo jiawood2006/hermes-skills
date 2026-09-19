@@ -10,7 +10,7 @@
     {
       "name": "hermes-skills",
       "source": "./",
-      "description": "8 个中文场景实用技能：de-ai-writer（中文去AI味+35条模式清单）、doc-ocr（文档识别）、video-to-text（视频转文字）、ecommerce-material-studio（电商素材）、memory-manager / memory-graph（记忆管理）、voice-persona（语音人格）、ai-project-advisor（工程顾问）。",
+      "description": "9 个中文场景实用技能：de-ai-writer（中文去AI味+35条模式清单）、doc-ocr（文档识别）、video-to-text（视频转文字）、ecommerce-material-studio（电商素材）、memory-manager / memory-graph（记忆管理）、voice-persona（语音人格）、ai-project-advisor（工程顾问）、ai-video-ad-production（AI 电商视频广告生产线）。",
       "license": "MIT",
       "keywords": [
         "chinese",
