@@ -152,8 +152,8 @@
 | ❌ 已作废（2026-09-16）：`SKILL.md` §用户偏好「**产品特写别交给 AI——用官方真机图做 Ken Burns/zoompan 缓慢推近**」（含命令） | 现：产品镜走 **r2v 多参考图**，让模型在场景里把产品生成出来（手持/水流/充电/塞包光影自洽）；官方图动效不得当交付。用户原话：「把贴图运动起来的」「像PPT」「这种又成贴图了」 |
 | ❌ 已作废（2026-09-15）：`SKILL.md` §路径判断 表格 路径②「**素材拼接**」列为可选交付 | 现：素材拼接（clipforge / MoneyPrinterTurbo）**只可作草稿/占位**；当交付用被判"图片拼接、没真实感" |
 | ❌ 已作废（2026-09-17）：`SKILL.md` §用户偏好「参考图两张必须"同向同形态"…**禁止**混入俯视/仰视/断面图当参考」 | 现：**参考图要覆盖会被挑错的每个面**（正面＋底部端面＋真手全长＋金网微距＋人物，最多 5 张）；旧说法写它时把一次失败归因错了 |
-| ❌ 已作废（2026-09-16）：`product-fidelity-decision-tree.md` §2「这款产品的形制超出当前 AI 视频模型能力，不是 prompt 问题」 | 现：**被 r2v 多参考图推翻**（用户：「产品细节基本满足了」）；错在参考图给法，不是模型能力 |
-| ❌ 已作废（2026-09-16）：`product-fidelity-decision-tree.md` §2 表格「官方物料成片 / 真机补拍」= 兜底方案 | 现：**不是必需**，别一上来就走 |
+| ❌ 已作废（2026-09-16）：`product-fidelity.md` §2「这款产品的形制超出当前 AI 视频模型能力，不是 prompt 问题」 | 现：**被 r2v 多参考图推翻**（用户：「产品细节基本满足了」）；错在参考图给法，不是模型能力 |
+| ❌ 已作废（2026-09-16）：`product-fidelity.md` §2 表格「官方物料成片 / 真机补拍」= 兜底方案 | 现：**不是必需**，别一上来就走 |
 | ⛔ 不得作为交付路线（2026-09-16）：任何"**合成卡 / 产品卡贴片 / 抠图叠背景**"脚本（`compose_official_material_ad.py`、`make_comp_cards.py`、`cutout_product.py`） | 现：保细节但不保真实感，用户一律否决（「这种又成贴图了」「**我不要这种贴图的**」）；留作技术参考，抠图 alpha 必须先消毒 |
 | ❌ 已作废（2026-09-17）：刀网花纹「浅金色**蜂窝编织**，不是光滑金盘/放射纹」 | 现：**香槟金色「放射状网格」** —— 同心圆＋放射线交织成**菱形小格**，外圈一圈**黑色环带**（依据：官方拉页图-7 刀网微距、拉页图-12 尺寸图、拉页图-0/3 整机全长）。危害：按旧写法验收，正确渲染会被误判成错 |
 | ❌ 已作废（2026-09-17）：机身「黑色哑光缎面 / 深灰哑光」 | 现：**枪灰／石墨灰「金属高光渐变」**（深灰底 + 竖向亮银反光），**不是哑光塑料、不是纯黑** |
@@ -166,12 +166,12 @@
 
 ### 4.1 开工阅读顺序
 
-1. **本文件**（功能=旧 `read-first-current-routes.md`：有效路线 + 作废台账 + 合规/肖像权/参考图纪律）
-2. `references/wan27-r2v-product-lock.md` — r2v 多参考图请求结构 + prompt 必写死项 + 决策铁律
-3. `references/scene-native-product-route.md` — 为什么必须"产品真的在场景里" + **产品结构事实纪律**
-4. `references/product-fidelity-decision-tree.md` **只看 §1 形制权威数据表**（尺寸/形状/接口在哪一面）
-5. `references/voice-consistency-and-subtitle-sync.md` — 配音锁音色 + 字幕时间轴 + 换音轨配方
-6. 需要时：`references/third-party-video-model-fields-and-prices.md`、`references/preflight-and-quality-gates.md`
+1. **本文件**（功能=旧 `compliance-portrait-and-references.md`：有效路线 + 作废台账 + 合规/肖像权/参考图纪律）
+2. `references/product-fidelity.md` — r2v 多参考图请求结构 + prompt 必写死项 + 决策铁律
+3. `references/scene-drama-and-candid-style.md` — 为什么必须"产品真的在场景里" + **产品结构事实纪律**
+4. `references/product-fidelity.md` **只看 §1 形制权威数据表**（尺寸/形状/接口在哪一面）
+5. `references/voice-and-subtitles.md` — 配音锁音色 + 字幕时间轴 + 换音轨配方
+6. 需要时：`references/engines-and-models.md`、`references/resolution-cost-and-arrearage.md`
 
 **规则：接到"做片子"的需求，先花 10 秒按上面的顺序读，再动手。禁止凭印象直接起生成任务。**
 （2026-09-16 就因为没先读，把用户早已否决的"贴图/合成"路线又做了一遍，白烧一轮。）
@@ -223,10 +223,10 @@
 
 ### 4.5 交付后用户报问题的标准动作
 
-见 `references/user-reported-frame-triage.md` ＋ `scripts/locate_reported_frame.py`：
+见 `references/pipeline-assembly-and-qc.md` ＋ `scripts/locate_reported_frame.py`：
 截图定位时间码 → 2 倍放大＋40px 网格量化 → 只重出受影响那段 → 走完整复核 → 飞书回读确认送达。
 
 ## 相关
-- 拍法层（旁白＋抓拍／暖色实用光／真实皮肤）：`references/realism-and-candid-style.md`
-- 逐镜核对与尺寸锚点：`references/wan27-r2v-product-lock.md`
-- 逐镜返工经济性与交付 QA：`references/shot-fix-economy-and-delivery-qa.md`
+- 拍法层（旁白＋抓拍／暖色实用光／真实皮肤）：`references/scene-drama-and-candid-style.md`
+- 逐镜核对与尺寸锚点：`references/product-fidelity.md`
+- 逐镜返工经济性与交付 QA：`references/pipeline-assembly-and-qc.md`
