@@ -1,6 +1,6 @@
 ---
 name: ai-video-ad-production
-description: 做AI生成的真人剧情带货短视频（真人+台词口型）。
+description: AI 电商视频广告生产线：一条命令出带货短视频（产品锁 / 多引擎选型 / 官方真像素产品镜 / 自动装配）。One-command product ad video pipeline: product lock, multi-engine selection, official-pixel product inserts, auto overlay assembly.
 category: ecommerce
 ---
 
