@@ -2,7 +2,7 @@
 
 > **你的 Agent 很聪明，但它搞不定中文世界的活儿。**
 > 抖音文案要手抄？扫描合同要肉眼敲？AI 写的稿子一股机器味？电商主图一张张 P？
-> 这里就是给 Agent 装的 **中文生存技能包**——8 个开箱即用的实用技能，免费开源，复制即用。
+> 这里就是给 Agent 装的 **中文生存技能包**——9 个开箱即用的实用技能，免费开源，复制即用。
 >
 > *Your agent is smart — but useless on Chinese real-world tasks. Douyin video→text, Chinese OCR, de-AI writing, e-commerce images. This is its Chinese survival kit.*
 
@@ -102,6 +102,8 @@ mkdir -p ~/.hermes/skills/utilities && cp -r skills/* ~/.hermes/skills/utilities
 | 🧠 Agent 记忆太乱、token 浪费？ | 记忆健康检查 + 压缩建议 | **memory-manager** | 全平台 · 零依赖 |
 | 📖 写小说/连载怕前后矛盾？ | 长文记忆图谱：实体网+时间线+**伏笔追踪** | **memory-graph** | 全平台 · 提取需 LLM key |
 | 🏗️ 工程项目资料太多理不清？ | 微信对话式 AI 工程顾问（记忆图谱+多群） | **ai-project-advisor** | 需部署服务端 |
+| 🎬 电商短视频要批量出片？ | 产品锁 + 多引擎选型 + **官方真像素产品镜** + 自动装配 | **ai-video-ad-production** | 全平台 · 生成需百炼 key |
+| 🎬 电商短视频要批量出片？ | 产品锁 + 多引擎选型 + **官方真像素产品镜** + 自动装配 | **ai-video-ad-production** | 全平台 · 生成需百炼 key |
 
 ---
 
@@ -188,12 +190,28 @@ hermes skills install jiawood2006/hermes-skills/skills/memory-manager
 hermes skills install jiawood2006/hermes-skills/skills/memory-graph
 hermes skills install jiawood2006/hermes-skills/skills/ai-project-advisor
 hermes skills install jiawood2006/hermes-skills/skills/voice-persona
+hermes skills install jiawood2006/hermes-skills/skills/ai-video-ad-production
+hermes skills install jiawood2006/hermes-skills/skills/ai-video-ad-production
 
 # 方式六：复制目录（纯手动，路径与各技能 SKILL.md 保持一致）
 mkdir -p ~/.hermes/skills/utilities
 cp -r skills/* ~/.hermes/skills/utilities/
 ```
 
+### 9️⃣ ai-video-ad-production · AI 电商视频广告生产线
+- **中文**：**一条命令出一条带货短视频** —— 产品锁（防变形/防掉色/防重影）+ 多引擎横评选型（`wan3.0-video` 产品最稳）+ **官方真像素产品镜**（产品 100% 保真、零 API 成本）+ 字幕/花字/参数条/CTA/合规标自动装配 + 九宫格拼图核验
+- **English**: **One command → one product ad video** — product-lock prompting, multi-engine benchmarking (picks `wan3.0-video` for product fidelity), official-pixel product inserts (zero cost, 100% fidelity), automatic overlay assembly (subs / chips / spec / CTA / compliance) and 9-grid QA
+- **适用**：电商短视频素材批量生产、投放素材 A/B 变体、产品特写保真
+- **依赖**：百炼 DashScope key（生成按秒计费，720P 约 0.6 元/秒）+ ffmpeg；**装配与官方素材镜零 API 成本**
+
+---
+### 9️⃣ ai-video-ad-production · AI 电商视频广告生产线
+- **中文**：**一条命令出一条带货短视频** —— 产品锁（防变形/防掉色/防重影）+ 多引擎横评选型（`wan3.0-video` 产品最稳）+ **官方真像素产品镜**（产品 100% 保真、零 API 成本）+ 字幕/花字/参数条/CTA/合规标自动装配 + 九宫格拼图核验
+- **English**: **One command → one product ad video** — product-lock prompting, multi-engine benchmarking (picks `wan3.0-video` for product fidelity), official-pixel product inserts (zero cost, 100% fidelity), automatic overlay assembly (subs / chips / spec / CTA / compliance) and 9-grid QA
+- **适用**：电商短视频素材批量生产、投放素材 A/B 变体、产品特写保真
+- **依赖**：百炼 DashScope key（生成按秒计费，720P 约 0.6 元/秒）+ ffmpeg；**装配与官方素材镜零 API 成本**
+
+---
 > 💡 兼容 agentskills.io 开放标准——其他支持 Skills 的 Agent 也能用。
 > 📁 安装后脚本路径：`~/.hermes/skills/utilities/<技能名>/scripts/`（各技能 SKILL.md 内命令均基于此路径）。
 > ✅ 技能校验：`python3 scripts/validate_skills.py` 一键检查全部 SKILL.md 的 frontmatter 合规性（名称/描述/引用文件），推 PR 前建议先跑一遍。
@@ -213,6 +231,10 @@ cp -r skills/* ~/.hermes/skills/utilities/
 > 结论一句话：★ 差距主要来自**分发渠道与受众基数**，不代表技能质量；但对方**内容深度确实强于我们**——所以本轮把内容补厚、把分发包齐。
 
 ## 📝 更新日志 / Changelog
+
+- **2026-09-19** — 新增 **ai-video-ad-production**（第 9 个技能，AI 电商视频广告生产线：产品锁 + 多引擎横评 + 官方真像素产品镜 + 一条命令出片）；同步更新 **ecommerce-material-studio** 产品档案（真机刀头=凸起金色球面网罩、手持比例=手掌长 0.7~0.8 倍）
+
+- **2026-09-19** — 新增 **ai-video-ad-production**（第 9 个技能，AI 电商视频广告生产线：产品锁 + 多引擎横评 + 官方真像素产品镜 + 一条命令出片）；同步更新 **ecommerce-material-studio** 产品档案（真机刀头=凸起金色球面网罩、手持比例=手掌长 0.7~0.8 倍）
 
 - **2026-09-10** — **第三轮对标**（cognee / graphrag / HippoRAG / claude-reflect）：memory-graph **v1.1.0** 新增旧设定弃用恢复 + 多跳关系展开；memory-manager **v1.1.0** 新增从会话历史挖掘纠正 + 会话库表级体检（实测 1.2GB 中 71% 是 FTS 索引）；对标档案 `docs/benchmarks/2026-09-10-memory-graph-and-memory-manager.md`
 - **2026-09-10** — **第二轮对标**（PaddleOCR / Umi-OCR / OCRmyPDF / douyin-downloader）：doc-ocr **v2.1.0** 新增页眉页脚水印过滤 + 可搜索 PDF + 多语言；video-to-text **v3.1.0** 新增 SRT/VTT 字幕导出 + 词级时间戳按句切分 + 中文默认简体带标点；对标档案 `docs/benchmarks/2026-09-10-video-to-text-and-doc-ocr.md`
