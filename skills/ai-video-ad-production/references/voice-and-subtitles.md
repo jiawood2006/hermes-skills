@@ -195,6 +195,6 @@ ffmpeg -y -i v2_seg3.mp4 -i seg3_voice.wav -map 0:v -map 1:a \
 
 ## 相关
 
-- 装配与项目字段：`../SKILL.md`、`scripts/make_ad.py`、`references/make-ad-pipeline-verification.md`
-- 写实旁白路线（VO＋抓拍，样片对标）：`references/realism-and-candid-style.md`
+- 装配与项目字段：`../SKILL.md`、`scripts/make_ad.py`、`references/pipeline-assembly-and-qc.md`
+- 写实旁白路线（VO＋抓拍，样片对标）：`references/scene-drama-and-candid-style.md`
 - 校验脚本：`scripts/voice_consistency_check.py` / `scripts/voice_timbre_similarity.py` / `scripts/stt_dialogue_check.py` / `scripts/build_vo30.py` / `scripts/replace_segment_audio.py`
