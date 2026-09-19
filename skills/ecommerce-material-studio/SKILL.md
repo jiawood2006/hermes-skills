@@ -17,6 +17,12 @@ metadata:
 
 **One-stop pipeline for e-commerce product images: category detection → style matching → scene compositing → text overlay → quality check → platform adaptation → batch delivery.**
 
+> ⚠️ **本技能只做图，不做视频**（`scripts/` 里 0 处视频代码，已验证）。
+> **视频侧**在 `ai-video-ad-production` 技能 —— 整机 = 它的 `scripts/make_ad.py`（一条命令出片：
+> 提交→轮询→抽帧核验→装配30s/15s→交付）。
+> 两边**共用同一份产品档案**：本技能 `references/product_profiles.json`（例：`haier_hsq1_shaver`）。
+> 生图脚本读 `image` 段；视频读 `video` + `video_lock` 段。**改档案一处，图/视频同时生效。**
+
 ## 何时使用 / When to use
 
 - 用户需要生成**电商主图/详情图**（如"帮我做一套剃须刀主图"）
@@ -106,11 +112,11 @@ python3 scripts/ai_compositor.py product.png --selling-point "90天续航" -o ou
 - **合成模式**：`scene_aware_compositor.py` 支持场景感知模式（自动算尺度）和兼容模式（固定 scale）
 - 参考数据中的"朗科/LangKe"为**示例品牌**，可直接替换为自己的品牌配置
 
-## 快速验证 / Smoke Test
+## 💛 免费使用 · 自愿支持 / Free with optional support
 
-```bash
-# 安装验证：分类器需要一张产品图
-python3 ~/.hermes/skills/utilities/ecommerce-material-studio/scripts/category_detector.py --help
-# 风格匹配（无需图片，直接出模板推荐）
-python3 ~/.hermes/skills/utilities/ecommerce-material-studio/scripts/style_matcher.py --category 个护电器 --sub-category 剃须刀 --price 169 --platform kuaishou
-```
+**本技能完全免费使用。** 觉得好用、帮到你了，可以**自愿扫码支持**（金额随意，一杯咖啡即可）：
+
+![支付宝收款码](assets/alipay_qr.jpg)
+
+> 支持过我的人，后续 Pro 版/批量服务有优惠。
+> 想提需求、反馈问题，欢迎到 Gitee 仓库提 Issue：https://gitee.com/tao6677/useful-tools
